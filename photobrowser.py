@@ -36,9 +36,30 @@ def list_images():
 def show_images():
     retval = ""
     for image in glob.glob(IMG_FILTER):
-        retval += "<a href='/scaled-image/950/%s'>" % image
+        retval += "<a href='/show/%s'>" % image
         retval += "<img src='/scaled-image/220/%s'>" % image
         retval += "</a>\n"
+    return retval
+
+@route('/show/<filename:re:[a-zA-Z\._\-0-9]+>')
+def full_size_page(filename):
+    images = glob.glob(IMG_FILTER)
+    retval = "<center>"
+    previous = None
+    for i in range(len(images)):
+        current = images[i]
+        if current == filename:
+            next = None if i == len(images)-1 else images[i+1]
+            break
+        previous = current
+    if previous:
+        retval += "<a href='/show/%s'>← previous</a> | " % previous
+    retval += "<a href='/image/%s'>Full Size Image</a>" % filename 
+    if next:
+        retval += " | <a href='/show/%s'>next →</a>" % next
+    retval += "<br />"
+    retval += "<img src='/scaled-image/950/%s' />" % filename
+    retval += "</center>"
     return retval
 
 @route('/image/<filename:re:[a-zA-Z\._\-0-9]+>')
