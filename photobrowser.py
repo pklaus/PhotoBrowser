@@ -41,11 +41,11 @@ def show_images():
         retval += "</a>\n"
     return retval
 
-@route('/image/<filename:re:[a-zA-Z\._0-9]+>')
+@route('/image/<filename:re:[a-zA-Z\._\-0-9]+>')
 def full_size_image(filename):
     return static_file(filename, root='./')
 
-@route('/scaled-image/<size:int>/<filename:re:[a-zA-Z\._0-9]+>')
+@route('/scaled-image/<size:int>/<filename:re:[a-zA-Z\._\-0-9]+>')
 def scaled_image(size, filename):
     response.set_header('Cache-Control', 'max-age=3600')
     if size not in SIZES: abort(404, "No scaled image of that size available.")
