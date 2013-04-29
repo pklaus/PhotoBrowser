@@ -37,8 +37,8 @@ def show_images():
     retval = ""
     for image in glob.glob(IMG_FILTER):
         retval += "<a href='/scaled-image/950/%s'>" % image
-        retval += "<img src='/scaled-image/220/%s'>\n" % image
-        retval += "</a>"
+        retval += "<img src='/scaled-image/220/%s'>" % image
+        retval += "</a>\n"
     return retval
 
 @route('/image/<filename:re:[a-zA-Z\._0-9]+>')
