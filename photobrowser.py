@@ -36,6 +36,7 @@ def list_images():
 def show_images():
     retval = ""
     for image in glob.glob(IMG_FILTER):
+        retval += "<a name='%s'></a>" % image
         retval += "<a href='/show/%s'>" % image
         retval += "<img src='/scaled-image/220/%s'>" % image
         retval += "</a>\n"
@@ -54,6 +55,7 @@ def full_size_page(filename):
         previous = current
     if previous:
         retval += "<a href='/show/%s'>← previous</a> | " % previous
+    retval += "<a href='/images#%s'>All images</a> | " % filename 
     retval += "<a href='/image/%s'>Full Size Image</a>" % filename 
     if next:
         retval += " | <a href='/show/%s'>next →</a>" % next
