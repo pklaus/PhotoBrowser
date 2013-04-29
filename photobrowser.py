@@ -52,6 +52,8 @@ def scaled_image(size, filename):
     outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % size
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
         return static_file(outfile, root=THUMBS_DIR)
+    if not os.path.isfile('./' + filename):
+        abort(404, "image not found")
     try:
         im = Image.open('./' + filename)
         size = (size if size>800 else 800, size)
