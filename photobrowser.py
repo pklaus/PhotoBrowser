@@ -13,7 +13,7 @@ import random
 ## needs  `pip install bottle`  :
 from bottle import route, run, static_file, get, request, template, response, redirect, error, abort
 ## needs  `pip install PIL`  :
-import Image
+from PIL import Image
 from PIL.ExifTags import TAGS
 
 # possible images sizes (height and width):
