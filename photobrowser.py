@@ -42,7 +42,7 @@ def show_images():
         retval += "</a>\n"
     return retval
 
-@route('/show/<filename:re:[a-zA-Z\._\-0-9]+>')
+@route('/show/<filename:path>')
 def full_size_page(filename):
     images = glob.glob(IMG_FILTER)
     retval = "<center>"
@@ -64,11 +64,11 @@ def full_size_page(filename):
     retval += "</center>"
     return retval
 
-@route('/image/<filename:re:[a-zA-Z\._\-0-9]+>')
+@route('/image/<filename:path>')
 def full_size_image(filename):
     return static_file(filename, root='./')
 
-@route('/scaled-image/<size:int>/<filename:re:[a-zA-Z\._\-0-9]+>')
+@route('/scaled-image/<size:int>/<filename:path>')
 def scaled_image(size, filename):
     response.set_header('Cache-Control', 'max-age=3600')
     if size not in SIZES: abort(404, "No scaled image of that size available.")
@@ -90,6 +90,7 @@ def scaled_image(size, filename):
                     if value == 8: im = im.rotate(90)
                     break
         im.thumbnail(size, Image.ANTIALIAS)
+        mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
         im.save(os.path.join(THUMBS_DIR, outfile), "JPEG")
     except IOError:
         abort(500, "cannot create thumbnail for '%s'" % filename)
@@ -103,6 +104,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
     parser.add_argument('-t', '--thumbs-dir', default='./.thumbs/', help='The directory to store thumbnails in.')
+    parser.add_argument('-s', '--subdirs', action='store_true',
+    help='Assume images to be stored in sub directories.')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
     parser.add_argument('FOLDER', default='./', help='The folder with your images [default: ./]')
@@ -112,6 +115,8 @@ if __name__ == '__main__':
         mkdir_p(THUMBS_DIR)
     except:
         sys.exit('Could not create the thumbnail folder. Exiting')
+    if args.subdirs:
+        IMG_FILTER = '*/' + IMG_FILTER
     if args.debug:
         run(host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
