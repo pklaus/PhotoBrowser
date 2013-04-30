@@ -6,6 +6,7 @@ import pprint
 import glob
 import os, sys
 import errno
+import re
 import argparse
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
@@ -32,10 +33,64 @@ def list_images():
     response.headers['Content-Type'] = 'text/plain; charset=UTF8'
     return pprint.pformat(glob.glob(IMG_FILTER))
 
-@get('/images')
-def show_images():
+def sorted_albums( l ): 
+    """ Sort the given iterable in the way that humans expect.
+        see http://stackoverflow.com/a/2669120/183995
+    """ 
+    convert = lambda text: int(text) if text.isdigit() else text 
+    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
+    return sorted(l, key = alphanum_key)
+
+@get('/albums')
+def albums():
+    images = glob.glob(IMG_FILTER)
+    albums = [os.path.split(image)[0] for image in images]
+    albums = [album for album in albums if len(album)>0]
+    if len(albums) == 0:
+        return "No albums found"
+    albums = set(albums)
+    albums = sorted_albums(albums)
     retval = ""
-    for image in glob.glob(IMG_FILTER):
+    album_images = dict()
+    for album in albums:
+        album_images[album] = []
+    for image in images:
+        album_images[os.path.split(image)[0]].append(image)
+    for album in albums:
+        # display the album name
+        retval += "<a name='%s'></a>" % album
+        retval += "<a href='/album/%s'>" % album
+        match = re.match('^(\d+)-(\d+)-(\d+)_', album)
+        if match:
+            date = [int(number) for number in match.groups()]
+            retval += "<h3>%s</h3>\n" % ' '.join(album.split('_')[1:]).replace('-',' ')
+            retval += "<div>%04d-%02d-%02d</div>\n" % tuple(date)
+        else:
+            retval += "<h3>%s</h3>" % album
+        retval += "</a>\n"
+        # show the first x images
+        i = 0
+        for album_image in album_images[album]:
+            i += 1
+            if i >= 7: break
+            retval += "<a name='%s'></a>" % album_image
+            retval += "<a href='/show/%s'>" % album_image
+            retval += "<img src='/scaled-image/220/%s'>" % album_image
+            retval += "</a>\n"
+    return retval
+
+@get('/album/<album:path>')
+def show_album(album):
+    return show_images(album)
+
+@get('/images')
+def show_images(album=None):
+    retval = ""
+    images = glob.glob(IMG_FILTER)
+    if album:
+        images = [image for image in images if os.path.split(image)[0] == album]
+        retval += "<h3>Album: %s</h3>" % album
+    for image in images:
         retval += "<a name='%s'></a>" % image
         retval += "<a href='/show/%s'>" % image
         retval += "<img src='/scaled-image/220/%s'>" % image
