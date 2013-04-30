@@ -107,6 +107,7 @@ def show_images(album=None):
     images = glob.glob(IMG_FILTER)
     if album:
         images = [image for image in images if os.path.split(image)[0] == album]
+        retval += "<a href='/images'>Show All Images</a> | <a href='/albums'>Show All Albums</a>"
         retval += "<h3>Album: %s</h3>" % album
     for image in images:
         retval += "<a name='%s'></a>" % image
@@ -128,7 +129,10 @@ def full_size_page(filename):
         previous = current
     if previous:
         retval += "<a href='/show/%s'>← previous</a> | " % previous
-    retval += "<a href='/images#%s'>All images</a> | " % filename 
+    retval += "<a href='/images#%s'>All Images</a> | " % filename
+    album = os.path.split(filename)[0]
+    if album:
+        retval += "<a href='/album/%s#%s'>Album View</a> | " % (album, filename)
     retval += "<a href='/image/%s'>Full Size Image</a>" % filename 
     if next:
         retval += " | <a href='/show/%s'>next →</a>" % next
