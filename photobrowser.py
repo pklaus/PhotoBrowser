@@ -8,6 +8,7 @@ import os, sys
 import errno
 import re
 import argparse
+import random
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
 from bottle import route, run, static_file, get, request, template, response, redirect, error, abort
@@ -29,6 +30,23 @@ def mkdir_p(path):
         else: raise
 
 @get('/')
+def index_page():
+    retval = "<h3>Navigation</h3>"
+    retval += "<ul>"
+    retval += "<li><a href='/images'>Show All Images</a></li>"
+    retval += "<li><a href='/albums'>Show All Albums</a></li>"
+    retval += "</ul>\n"
+    retval += "<h3>Some Random Images</h3>\n"
+    images = glob.glob(IMG_FILTER)
+    images = random.sample(images, 12)
+    for image in images:
+        retval += "<a name='%s'></a>" % image
+        retval += "<a href='/show/%s'>" % image
+        retval += "<img src='/scaled-image/220/%s'>" % image
+        retval += "</a>\n"
+    return retval
+
+@get('/api/list_images')
 def list_images():
     response.headers['Content-Type'] = 'text/plain; charset=UTF8'
     return pprint.pformat(glob.glob(IMG_FILTER))
