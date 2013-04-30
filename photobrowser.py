@@ -62,6 +62,10 @@ def full_size_page(filename):
     retval += "<br />"
     retval += "<img src='/scaled-image/950/%s' />" % filename
     retval += "</center>"
+    if next:
+        retval += "<img style='display:none' src='/scaled-image/950/%s' />" % next
+    if previous:
+        retval += "<img style='display:none' src='/scaled-image/950/%s' />" % previous
     return retval
 
 @route('/image/<filename:path>')
