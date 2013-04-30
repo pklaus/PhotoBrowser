@@ -201,6 +201,6 @@ if __name__ == '__main__':
     if args.debug:
         run(host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
-        run(host='0.0.0.0', port=args.port)
-    #run(host='0.0.0.0', server='cherrypy', port=8080)
-    
+        #run(host='0.0.0.0', port=args.port)
+        run(host='0.0.0.0', server='cherrypy', port=args.port)
+
