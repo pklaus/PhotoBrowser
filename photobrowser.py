@@ -11,7 +11,7 @@ import argparse
 import random
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
-from bottle import route, run, get, request, template, response, redirect, error, abort
+from bottle import route, run, get, request, template, response, redirect, error, abort, install
 ## needs  `pip install PIL`  :
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -235,6 +235,23 @@ def scaled_image(size, filename):
 @error(404)
 def error404(error):
     return "Error 404 - The requested document does not exist."
+
+CACHE_SECONDS = 3600
+class CachePlugin(object):
+    """ adopted from https://github.com/jtackaberry/stagehand/blob/master/src/web/server/__init__.py """
+    name = 'cache'
+    api = 2
+    def apply(self, callback, context):
+        cache = 'max-age=%d, public' % (CACHE_SECONDS, )
+
+        def wrapper(*args, **kwargs):
+            if cache and cache is not True:
+                response.headers['Cache-Control'] = cache
+            return callback(*args, **kwargs)
+
+        return wrapper
+
+install(CachePlugin())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
