@@ -129,11 +129,14 @@ def full_size_page(filename):
     filename = clean_url_path(filename)
     images = glob.glob(IMG_FILTER)
     retval = "<center>"
-    previous = None
+    previous, next = None, None
     for i in range(len(images)):
         current = images[i]
         if current == filename:
-            next = None if i == len(images)-1 else images[i+1]
+            try:
+                next = images[i+1]
+            except IndexError:
+                pass
             break
         previous = current
     if previous:
