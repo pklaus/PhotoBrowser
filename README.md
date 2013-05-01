@@ -10,6 +10,23 @@ you to take a look at the photos in this directory
 and should give you a couple of options to
 select the best ones / delete bad ones and more.
 
+### Requirements
+
+This project needs Python to run. It is being tested on Python 2.7 and Python 3.3 on Mac OS X and on Windows 2012 Server.
+
+Python modules needed:
+
+* CherryPy, a fast web server
+* PIL (Pillow on Python 3.3), the Python Imaging Library
+
+##### Installation on Windows 2012 Server
+
+1. Install Python 3.3.
+2. Install [distribute](http://www.lfd.uci.edu/~gohlke/pythonlibs/#distribute) and [pip](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pip)
+3. Use pip to install CherryPy: `set PATH=C:\Python33\Scripts;%PATH%` and `pip install cherrypy`
+4. Install [Pillow](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pil)
+5. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
+
 #### Some ideas:
 
 * Display if there is a related raw file.
