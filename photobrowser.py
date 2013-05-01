@@ -195,7 +195,7 @@ def error404(error):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
-    parser.add_argument('-t', '--thumbs-dir', default='./.thumbs/', help='The directory to store thumbnails in.')
+    parser.add_argument('-t', '--thumbs-dir', default=THUMBS_DIR, help='The directory to store thumbnails in.')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
     parser.add_argument('-d', '--debug', action='store_true',
