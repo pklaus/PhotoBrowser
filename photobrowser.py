@@ -207,7 +207,6 @@ def full_size_image(filename):
 @route('/scaled-image/<size:int>/<filename:path>')
 def scaled_image(size, filename):
     filename = clean_url_path(filename)
-    response.set_header('Cache-Control', 'max-age=3600')
     if size not in SIZES: abort(404, "No scaled image of that size available.")
     outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % size
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
