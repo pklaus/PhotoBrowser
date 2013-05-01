@@ -11,10 +11,12 @@ import argparse
 import random
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
-from bottle import route, run, static_file, get, request, template, response, redirect, error, abort
+from bottle import route, run, get, request, template, response, redirect, error, abort
 ## needs  `pip install PIL`  :
 from PIL import Image
 from PIL.ExifTags import TAGS
+### ------ Internal Dependencies
+from hacks import static_file
 
 # possible images sizes (height and width):
 SIZES = [220, 330, 400, 600, 800, 950, 1200, 2400]
