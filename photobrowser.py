@@ -29,6 +29,13 @@ def mkdir_p(path):
             pass
         else: raise
 
+def clean_url_path(path):
+    try:
+        path = os.path.normpath(path.encode('latin1').decode('utf8'))
+    except UnicodeEncodeError:
+        path = os.path.normpath(path)
+    return path
+
 @get('/')
 def index_page():
     retval = "<h3>Navigation</h3>"
@@ -99,6 +106,7 @@ def albums():
 
 @get('/album/<album:path>')
 def show_album(album):
+    album = clean_url_path(album)
     return show_images(album)
 
 @get('/images')
@@ -118,6 +126,7 @@ def show_images(album=None):
 
 @route('/show/<filename:path>')
 def full_size_page(filename):
+    filename = clean_url_path(filename)
     images = glob.glob(IMG_FILTER)
     retval = "<center>"
     previous = None
@@ -147,10 +156,12 @@ def full_size_page(filename):
 
 @route('/image/<filename:path>')
 def full_size_image(filename):
+    filename = clean_url_path(filename)
     return static_file(filename, root='./')
 
 @route('/scaled-image/<size:int>/<filename:path>')
 def scaled_image(size, filename):
+    filename = clean_url_path(filename)
     response.set_header('Cache-Control', 'max-age=3600')
     if size not in SIZES: abort(404, "No scaled image of that size available.")
     outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % size
