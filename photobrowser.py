@@ -130,7 +130,46 @@ def show_images(album=None):
 def full_size_page(filename):
     filename = clean_url_path(filename)
     images = glob.glob(IMG_FILTER)
-    retval = "<center>"
+    retval = ""
+    retval += """
+<script>
+//window.onload = function()
+//{
+  document.onkeyup = function(event)
+  {
+    var e = (!event) ? window.event : event;
+    switch(e.keyCode)
+    {
+      case 37:
+        //window.location.href = document.getElementById('previous').href;
+        document.getElementById('previous').click();
+        break;
+      case 39:
+        //window.location.href = document.getElementById('next').href;
+        document.getElementById('next').click();
+        break;
+      case 38:
+        //window.location.href = document.getElementById('up').href;
+        document.getElementById('up').click();
+        break;
+    }
+  };
+//};
+// ----- or the jQuery solution:
+// ---   see http://digitalraindrops.net/2012/05/keyboard-navigation-for-wordpress-posts/
+// ---   or  http://jqueryfordesigners.com/adding-keyboard-navigation/
+//$(document.documentElement).keyup(function (event) {
+//  // handle cursor keys
+//  if (event.keyCode == 37) {
+//    // go left
+//    $('#previous').find('a').click();
+//  } else if (event.keyCode == 39) {
+//    // go right
+//    $('#next').find('a').click();
+//  }
+//});
+</script>
+"""
     previous, next = None, None
     for i in range(len(images)):
         current = images[i]
@@ -141,15 +180,16 @@ def full_size_page(filename):
                 pass
             break
         previous = current
+    retval += "<center>"
     if previous:
-        retval += "<a href='/show/%s'>← previous</a> | " % previous
+        retval += "<a id='previous' href='/show/%s'>← previous</a> | " % previous
     retval += "<a href='/images#%s'>All Images</a> | " % filename
     album = os.path.split(filename)[0]
     if album:
-        retval += "<a href='/album/%s#%s'>Album View</a> | " % (album, filename)
+        retval += "<a id='up' href='/album/%s#%s'>Album View</a> | " % (album, filename)
     retval += "<a href='/image/%s'>Full Size Image</a>" % filename 
     if next:
-        retval += " | <a href='/show/%s'>next →</a>" % next
+        retval += " | <a id='next' href='/show/%s'>next →</a>" % next
     retval += "<br />"
     retval += "<img src='/scaled-image/950/%s' />" % filename
     retval += "</center>"
