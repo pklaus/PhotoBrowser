@@ -19,7 +19,7 @@
   {% for image in images %}
     <a name='{{ image }}'></a>
     <a href='/show/{{ image }}'>
-      <img src='/scaled-image/220/{{ image }}'>
+      <img src='/scaled-image/{{ thumb_height }}/{{ image }}'>
     </a>
   {% endfor %}
 {% endblock %}

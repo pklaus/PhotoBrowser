@@ -26,16 +26,16 @@
 {% block content %}
 
     <center>
-    {% if previous %} <a id='previous' href='/show/{{ previous }}'>← previous</a> | {% endif %}
+    {% if previous %} <a id='previous' href='/show/{{ previous }}{% if height %}?height={{height}}{% endif %}'>← previous</a> | {% endif %}
     <a href='/images#{{ filename }}'>All Images</a> | 
     {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>Album View</a> | {% endif %}
     <a href='/image/{{ filename }}'>Full Size Image</a>
-    {% if next %} | <a id='next' href='/show/{{ next }}'>next →</a>{% endif %}
+    {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
     <br />
-    <img src='/scaled-image/950/{{ filename }}' />
+    <img src='/scaled-image/{{ height or 600 }}/{{ filename }}' />
     </center>
-    {% if next %}<img style='display:none' src='/scaled-image/950/{{ next }}' />{% endif %}
-    {% if previous %}<img style='display:none' src='/scaled-image/950/{{ previous }}' />{% endif %}
+    {% if next %}<img style='display:none' src='/scaled-image/{{ height or 600 }}/{{ next }}' />{% endif %}
+    {% if previous %}<img style='display:none' src='/scaled-image/{{ height or 600 }}/{{ previous }}' />{% endif %}
 
 {% endblock %}
 

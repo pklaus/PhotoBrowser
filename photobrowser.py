@@ -20,7 +20,9 @@ from PIL.ExifTags import TAGS
 from hacks import static_file
 
 # possible images sizes (height and width):
-SIZES = [220, 330, 400, 600, 800, 950, 1200, 2400]
+HEIGHTS = [220, 330, 400, 600, 780, 800, 950, 1200, 1800, 2400]
+DEFAULT_HEIGHT = 780
+DEFAULT_THUMB_HEIGHT = 220
 THUMBS_DIR = './.thumbs'
 IMG_FILTER = '*.[jJ][pP][gG]'
 TEMPLATE_PATH.append(os.path.join(os.path.split(os.path.realpath(__file__))[0],'views'))
@@ -47,7 +49,7 @@ def clean_url_path(path):
 def index_page():
     images = glob.glob(IMG_FILTER)
     images = random.sample(images, 12)
-    return dict(images=images)
+    return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @get('/api/list_images')
 def list_images():
@@ -81,7 +83,7 @@ def albums():
     # Purge the list of album_images
     for album in albums:
         album_images[album] = album_images[album][:6]
-    return dict(albums=albums, album_images=album_images)
+    return dict(albums=albums, album_images=album_images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @get('/album/<album:path>')
 def show_album(album):
@@ -94,13 +96,14 @@ def show_images(album=None):
     images = glob.glob(IMG_FILTER)
     if album:
         images = [image for image in images if os.path.split(image)[0] == album]
-    return dict(images=images, album=album)
+    return dict(images=images, album=album, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @route('/show/<filename:path>')
 @view('show.jinja2')
-def full_size_page(filename):
+def show_large_image(filename):
     filename = clean_url_path(filename)
     images = glob.glob(IMG_FILTER)
+    height = request.query.height
     previous, next = None, None
     for i in range(len(images)):
         current = images[i]
@@ -112,25 +115,25 @@ def full_size_page(filename):
             break
         previous = current
     album = os.path.split(filename)[0]
-    return dict(album=album, filename=filename, next=next, previous=previous)
+    return dict(album=album, filename=filename, next=next, previous=previous, height=height)
 
 @route('/image/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
     return static_file(filename, root='./')
 
-@route('/scaled-image/<size:int>/<filename:path>')
-def scaled_image(size, filename):
+@route('/scaled-image/<height:int>/<filename:path>')
+def scaled_image(height, filename):
     filename = clean_url_path(filename)
-    if size not in SIZES: abort(404, "No scaled image of that size available.")
-    outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % size
+    if height not in HEIGHTS: abort(404, "No scaled image of that height available.")
+    outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % height
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
         return static_file(outfile, root=THUMBS_DIR)
     if not os.path.isfile('./' + filename):
         abort(404, "image not found")
     try:
         im = Image.open('./' + filename)
-        size = (size if size>800 else 800, size)
+        size = (height*2, height)
         exif = im._getexif()
         if exif != None:
             for tag, value in exif.items():
