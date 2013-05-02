@@ -28,6 +28,8 @@ IMG_FILTER = '*.[jJ][pP][gG]'
 TEMPLATE_PATH.append(os.path.join(os.path.split(os.path.realpath(__file__))[0],'views'))
 STATIC_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0],'static')
 JPEG_QUALITY = 80
+IMAGE_FOLDER = './'
+IMAGE_REGEX = None
 
 def mkdir_p(path):
     try:
@@ -36,6 +38,9 @@ def mkdir_p(path):
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else: raise
+
+def all_images():
+    return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
 
 def clean_url_path(path):
     try:
@@ -47,14 +52,14 @@ def clean_url_path(path):
 @get('/')
 @view('home.jinja2')
 def index_page():
-    images = glob.glob(IMG_FILTER)
+    images = all_images()
     images = random.sample(images, 12)
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @get('/api/list_images')
 def list_images():
     response.headers['Content-Type'] = 'text/plain; charset=UTF8'
-    return pprint.pformat(glob.glob(IMG_FILTER))
+    return pprint.pformat(all_images())
 
 def sorted_albums( l ): 
     """ Sort the given iterable in the way that humans expect.
@@ -67,7 +72,7 @@ def sorted_albums( l ):
 @get('/albums')
 @view('albums.jinja2')
 def albums():
-    images = glob.glob(IMG_FILTER)
+    images = all_images()
     albums = [os.path.split(image)[0] for image in images]
     albums = [album for album in albums if len(album)>0]
     if len(albums) == 0:
@@ -93,7 +98,7 @@ def show_album(album):
 @get('/images')
 @view('images.jinja2')
 def show_images(album=None):
-    images = glob.glob(IMG_FILTER)
+    images = all_images()
     if album:
         images = [image for image in images if os.path.split(image)[0] == album]
     return dict(images=images, album=album, thumb_height=DEFAULT_THUMB_HEIGHT)
@@ -102,7 +107,7 @@ def show_images(album=None):
 @view('show.jinja2')
 def show_large_image(filename):
     filename = clean_url_path(filename)
-    images = glob.glob(IMG_FILTER)
+    images = all_images()
     height = request.query.height
     previous, next = None, None
     for i in range(len(images)):
@@ -120,7 +125,7 @@ def show_large_image(filename):
 @route('/image/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
-    return static_file(filename, root='./')
+    return static_file(filename, root=IMAGE_FOLDER)
 
 @route('/scaled-image/<height:int>/<filename:path>')
 def scaled_image(height, filename):
@@ -129,10 +134,10 @@ def scaled_image(height, filename):
     outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % height
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
         return static_file(outfile, root=THUMBS_DIR)
-    if not os.path.isfile('./' + filename):
+    if not os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
         abort(404, "image not found")
     try:
-        im = Image.open('./' + filename)
+        im = Image.open(os.path.join(IMAGE_FOLDER, filename))
         size = (height*2, height)
         exif = im._getexif()
         if exif != None:
@@ -184,15 +189,17 @@ if __name__ == '__main__':
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
-    parser.add_argument('FOLDER', default='./', help='The folder with your images [default: ./]')
+    parser.add_argument('FOLDER', default=IMAGE_FOLDER, help='The folder with your images [default: ./]')
     args = parser.parse_args()
-    THUMBS_DIR = args.thumbs_dir
+    IMAGE_FOLDER = os.path.abspath(args.FOLDER)
+    IMAGE_REGEX = re.compile('^' + re.escape(IMAGE_FOLDER + os.sep) + '(.*)')
+    THUMBS_DIR = os.path.abspath(args.thumbs_dir)
     try:
         mkdir_p(THUMBS_DIR)
     except:
         sys.exit('Could not create the thumbnail folder. Exiting')
     if args.subdirs:
-        IMG_FILTER = '*/' + IMG_FILTER
+        IMG_FILTER = IMAGE_FOLDER + '/*/' + IMG_FILTER
     if args.jpeg_quality not in range(0,101):
         args.error('JPEG quality must be in the range of 0-100.')
     JPEG_QUALITY = args.jpeg_quality
