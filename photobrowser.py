@@ -11,7 +11,8 @@ import argparse
 import random
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
-from bottle import route, run, get, request, template, response, redirect, error, abort, install
+from bottle import route, run, get, request, response, redirect, error, abort, install, TEMPLATE_PATH
+from bottle import jinja2_view as view, jinja2_template as template
 ## needs  `pip install PIL`  :
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -22,6 +23,8 @@ from hacks import static_file
 SIZES = [220, 330, 400, 600, 800, 950, 1200, 2400]
 THUMBS_DIR = './.thumbs'
 IMG_FILTER = '*.[jJ][pP][gG]'
+TEMPLATE_PATH.append(os.path.join(os.path.split(os.path.realpath(__file__))[0],'views'))
+STATIC_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0],'static')
 
 def mkdir_p(path):
     try:
@@ -39,21 +42,11 @@ def clean_url_path(path):
     return path
 
 @get('/')
+@view('home.jinja2')
 def index_page():
-    retval = "<h3>Navigation</h3>"
-    retval += "<ul>"
-    retval += "<li><a href='/images'>Show All Images</a></li>"
-    retval += "<li><a href='/albums'>Show All Albums</a></li>"
-    retval += "</ul>\n"
-    retval += "<h3>Some Random Images</h3>\n"
     images = glob.glob(IMG_FILTER)
     images = random.sample(images, 12)
-    for image in images:
-        retval += "<a name='%s'></a>" % image
-        retval += "<a href='/show/%s'>" % image
-        retval += "<img src='/scaled-image/220/%s'>" % image
-        retval += "</a>\n"
-    return retval
+    return dict(images=images)
 
 @get('/api/list_images')
 def list_images():
@@ -69,6 +62,7 @@ def sorted_albums( l ):
     return sorted(l, key = alphanum_key)
 
 @get('/albums')
+@view('albums.jinja2')
 def albums():
     images = glob.glob(IMG_FILTER)
     albums = [os.path.split(image)[0] for image in images]
@@ -77,34 +71,16 @@ def albums():
         return "No albums found"
     albums = set(albums)
     albums = sorted_albums(albums)
-    retval = ""
+    # Sort images into albums
     album_images = dict()
     for album in albums:
         album_images[album] = []
     for image in images:
         album_images[os.path.split(image)[0]].append(image)
+    # Purge the list of album_images
     for album in albums:
-        # display the album name
-        retval += "<a name='%s'></a>" % album
-        retval += "<a href='/album/%s'>" % album
-        match = re.match('^(\d+)-(\d+)-(\d+)_', album)
-        if match:
-            date = [int(number) for number in match.groups()]
-            retval += "<h3>%s</h3>\n" % ' '.join(album.split('_')[1:]).replace('-',' ')
-            retval += "<div>%04d-%02d-%02d</div>\n" % tuple(date)
-        else:
-            retval += "<h3>%s</h3>" % album
-        retval += "</a>\n"
-        # show the first x images
-        i = 0
-        for album_image in album_images[album]:
-            i += 1
-            if i >= 7: break
-            retval += "<a name='%s'></a>" % album_image
-            retval += "<a href='/show/%s'>" % album_image
-            retval += "<img src='/scaled-image/220/%s'>" % album_image
-            retval += "</a>\n"
-    return retval
+        album_images[album] = album_images[album][:6]
+    return dict(albums=albums, album_images=album_images)
 
 @get('/album/<album:path>')
 def show_album(album):
@@ -112,64 +88,18 @@ def show_album(album):
     return show_images(album)
 
 @get('/images')
+@view('images.jinja2')
 def show_images(album=None):
-    retval = ""
     images = glob.glob(IMG_FILTER)
     if album:
         images = [image for image in images if os.path.split(image)[0] == album]
-        retval += "<a href='/images'>Show All Images</a> | <a href='/albums'>Show All Albums</a>"
-        retval += "<h3>Album: %s</h3>" % album
-    for image in images:
-        retval += "<a name='%s'></a>" % image
-        retval += "<a href='/show/%s'>" % image
-        retval += "<img src='/scaled-image/220/%s'>" % image
-        retval += "</a>\n"
-    return retval
+    return dict(images=images, album=album)
 
 @route('/show/<filename:path>')
+@view('show.jinja2')
 def full_size_page(filename):
     filename = clean_url_path(filename)
     images = glob.glob(IMG_FILTER)
-    retval = ""
-    retval += """
-<script>
-//window.onload = function()
-//{
-  document.onkeyup = function(event)
-  {
-    var e = (!event) ? window.event : event;
-    switch(e.keyCode)
-    {
-      case 37:
-        //window.location.href = document.getElementById('previous').href;
-        document.getElementById('previous').click();
-        break;
-      case 39:
-        //window.location.href = document.getElementById('next').href;
-        document.getElementById('next').click();
-        break;
-      case 38:
-        //window.location.href = document.getElementById('up').href;
-        document.getElementById('up').click();
-        break;
-    }
-  };
-//};
-// ----- or the jQuery solution:
-// ---   see http://digitalraindrops.net/2012/05/keyboard-navigation-for-wordpress-posts/
-// ---   or  http://jqueryfordesigners.com/adding-keyboard-navigation/
-//$(document.documentElement).keyup(function (event) {
-//  // handle cursor keys
-//  if (event.keyCode == 37) {
-//    // go left
-//    $('#previous').find('a').click();
-//  } else if (event.keyCode == 39) {
-//    // go right
-//    $('#next').find('a').click();
-//  }
-//});
-</script>
-"""
     previous, next = None, None
     for i in range(len(images)):
         current = images[i]
@@ -180,24 +110,8 @@ def full_size_page(filename):
                 pass
             break
         previous = current
-    retval += "<center>"
-    if previous:
-        retval += "<a id='previous' href='/show/%s'>← previous</a> | " % previous
-    retval += "<a href='/images#%s'>All Images</a> | " % filename
     album = os.path.split(filename)[0]
-    if album:
-        retval += "<a id='up' href='/album/%s#%s'>Album View</a> | " % (album, filename)
-    retval += "<a href='/image/%s'>Full Size Image</a>" % filename 
-    if next:
-        retval += " | <a id='next' href='/show/%s'>next →</a>" % next
-    retval += "<br />"
-    retval += "<img src='/scaled-image/950/%s' />" % filename
-    retval += "</center>"
-    if next:
-        retval += "<img style='display:none' src='/scaled-image/950/%s' />" % next
-    if previous:
-        retval += "<img style='display:none' src='/scaled-image/950/%s' />" % previous
-    return retval
+    return dict(album=album, filename=filename, next=next, previous=previous)
 
 @route('/image/<filename:path>')
 def full_size_image(filename):
@@ -231,6 +145,10 @@ def scaled_image(size, filename):
     except IOError:
         abort(500, "cannot create thumbnail for '%s'" % filename)
     return static_file(outfile, root=THUMBS_DIR)
+
+@route('/static/<path:path>')
+def static(path):
+    return static_file(path, root=STATIC_PATH)
 
 @error(404)
 def error404(error):

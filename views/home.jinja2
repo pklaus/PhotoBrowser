@@ -1,0 +1,28 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h3>Navigation</h3>
+  <ul>
+    <li><a href='/images'>Show All Images</a></li>
+    <li><a href='/albums'>Show All Albums</a></li>
+  </ul>
+  <h3>Some Random Images</h3>
+  {% for image in images %}
+    <a name='{{ image }}'></a>
+    <a href='/show/{{ image }}'>
+      <img src='/scaled-image/220/{{ image }}'>
+    </a>
+  {% endfor %}
+{% endblock %}
+
+
+

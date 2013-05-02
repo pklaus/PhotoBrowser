@@ -1,0 +1,50 @@
+{% extends "base.jinja2" %}
+
+{% block title %}{{ filename }}{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <script>
+  //window.onload = function()
+  //{
+    document.onkeyup = function(event)
+    {
+      var e = (!event) ? window.event : event;
+      switch(e.keyCode)
+      {
+        case 37:
+          //window.location.href = document.getElementById('previous').href;
+          document.getElementById('previous').click();
+          break;
+        case 39:
+          //window.location.href = document.getElementById('next').href;
+          document.getElementById('next').click();
+          break;
+        case 38:
+          //window.location.href = document.getElementById('up').href;
+          document.getElementById('up').click();
+          break;
+      }
+    };
+  //};
+  </script>
+{% endblock %}
+
+{% block content %}
+
+    <center>
+    {% if previous %} <a id='previous' href='/show/{{ previous }}'>← previous</a> | {% endif %}
+    <a href='/images#{{ filename }}'>All Images</a> | 
+    {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>Album View</a> | {% endif %}
+    <a href='/image/{{ filename }}'>Full Size Image</a>
+    {% if next %} | <a id='next' href='/show/{{ next }}'>next →</a>{% endif %}
+    <br />
+    <img src='/scaled-image/950/{{ filename }}' />
+    </center>
+    {% if next %}<img style='display:none' src='/scaled-image/950/{{ next }}' />{% endif %}
+    {% if previous %}<img style='display:none' src='/scaled-image/950/{{ previous }}' />{% endif %}
+
+{% endblock %}
+
+
+

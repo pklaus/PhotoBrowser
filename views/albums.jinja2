@@ -1,0 +1,29 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+  {% for album in albums %}
+    <a name='{{ album }}'></a>
+    <a href='/album/{{ album }}'>
+    {#
+    {% if album|date %}
+      <h3>{{ album }}</h3>
+      <div>{{ album|date }}</div>
+    {% else %}
+      <h3>{{ album }}</h3>
+    {% endif %}
+    #}
+    <h3>{{ album }}</h3>
+    </a>
+    {% for album_image in album_images[album] %}
+      <a name='{{ album_image }}'></a>
+      <a href='/show/{{ album_image }}'>
+        <img src='/scaled-image/220/{{ album_image }}'>
+      </a>
+    {% endfor %}
+  {% endfor %}
+{% endblock %}
+
+
+
