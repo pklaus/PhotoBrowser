@@ -5,28 +5,21 @@
 {% block head %}
   {{ super() }}
   <script>
-  //window.onload = function()
-  //{
-    document.onkeyup = function(event)
-    {
-      var e = (!event) ? window.event : event;
-      switch(e.keyCode)
-      {
-        case 37:
-          //window.location.href = document.getElementById('previous').href;
-          document.getElementById('previous').click();
-          break;
-        case 39:
-          //window.location.href = document.getElementById('next').href;
-          document.getElementById('next').click();
-          break;
-        case 38:
-          //window.location.href = document.getElementById('up').href;
-          document.getElementById('up').click();
-          break;
-      }
-    };
-  //};
+  // -- Use some jQuery JS (can also be done without jQuery as introduced in daecd1f )
+  // -  see http://jqueryfordesigners.com/adding-keyboard-navigation/
+  $(document.documentElement).keyup(function (event) {
+    // handle cursor keys
+    if (event.keyCode == 37) {
+      // go left
+      document.getElementById('previous').click();
+    } else if (event.keyCode == 39) {
+      // go right
+      document.getElementById('next').click();
+    } else if (event.keyCode == 38) {
+      // go up
+      document.getElementById('up').click();
+    }
+  });
   </script>
 {% endblock %}
 
