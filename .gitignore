@@ -1,0 +1,5 @@
+.thumbs
+*.pyc
+__pycache__
+*.swp
+
