@@ -25,6 +25,7 @@ THUMBS_DIR = './.thumbs'
 IMG_FILTER = '*.[jJ][pP][gG]'
 TEMPLATE_PATH.append(os.path.join(os.path.split(os.path.realpath(__file__))[0],'views'))
 STATIC_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0],'static')
+JPEG_QUALITY = 80
 
 def mkdir_p(path):
     try:
@@ -141,7 +142,7 @@ def scaled_image(size, filename):
                     break
         im.thumbnail(size, Image.ANTIALIAS)
         mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
-        im.save(os.path.join(THUMBS_DIR, outfile), "JPEG")
+        im.save(os.path.join(THUMBS_DIR, outfile), "JPEG", quality=JPEG_QUALITY)
     except IOError:
         abort(500, "cannot create thumbnail for '%s'" % filename)
     return static_file(outfile, root=THUMBS_DIR)
@@ -177,6 +178,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--thumbs-dir', default=THUMBS_DIR, help='The directory to store thumbnails in.')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
+    parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
     parser.add_argument('FOLDER', default='./', help='The folder with your images [default: ./]')
@@ -188,6 +190,9 @@ if __name__ == '__main__':
         sys.exit('Could not create the thumbnail folder. Exiting')
     if args.subdirs:
         IMG_FILTER = '*/' + IMG_FILTER
+    if args.jpeg_quality not in range(0,101):
+        args.error('JPEG quality must be in the range of 0-100.')
+    JPEG_QUALITY = args.jpeg_quality
     if args.debug:
         run(host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
