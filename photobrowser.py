@@ -122,12 +122,73 @@ def show_large_image(filename):
             break
         previous = current
     album = os.path.split(filename)[0]
-    return dict(album=album, filename=filename, next=next, previous=previous, height=height)
+    try:
+        exif = named_exif( clean_exif_data( get_exif_data(os.path.join(IMAGE_FOLDER, filename))))
+        for item in ['Model', 'FocalLength', 'FNumber', 'ExposureTime', 'ISOSpeedRatings', 'ExifImageWidth', 'ExifImageHeight']:
+            if not item in exif: exif = None
+    except:
+        exif = None
+    return dict(album=album, filename=filename, next=next, previous=previous, height=height, exif=exif, filesize=os.path.getsize(os.path.join(IMAGE_FOLDER, filename))/(1024.*1024.))
 
 @route('/image/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
     return static_file(filename, root=IMAGE_FOLDER)
+
+
+def get_exif_data(filename):
+    im = Image.open(filename)
+    exif = im._getexif()
+    ret = dict()
+    for tag, value in exif.items():
+        ret[tag] = value
+    return ret
+
+def clean_exif_data(exif_data):
+    ret_exif = dict()
+    for tag, value in exif_data.items():
+        if type(value) == str:
+            value = value.rstrip('\0')
+        if type(value) == bytes:
+            value = value.rstrip(b'\x00')
+        ret_exif[tag] = value
+    return ret_exif
+    
+def structure_exif_data(exif_data):
+    ret_exif = dict()
+    for tag, value in exif_data.items():
+        decoded = TAGS.get(tag, tag)
+        ret_exif[tag] = dict(name=decoded, value=value)
+    return ret_exif
+
+def named_exif(exif_data):
+    ret_exif = dict()
+    for tag, value in exif_data.items():
+        decoded = TAGS.get(tag, tag)
+        ret_exif[decoded] = value
+    return ret_exif
+
+@route('/exif/<filename:path>')
+def json_exif_information(filename):
+    """
+    Return EXIF information in JSON format.
+    A dictionary is being returned containing the EXIF key numbers as keys and
+    an dictionary containing the name and value of the respective EXIF tag.
+    """
+    filename = clean_url_path(filename)
+    if not filename in all_images():
+        abort(404, "image not found")
+    try:
+        exif = structure_exif_data( clean_exif_data( get_exif_data(os.path.join(IMAGE_FOLDER, filename))))
+        ret = dict()
+        for tag, content in exif.items():
+            if type(content['value']) == bytes:
+                content['value'] = repr(content['value'])
+            if content['name'] == 'MakerNote': continue
+            ret[tag] = content
+        return ret
+    except IOError:
+        abort(500, "cannot extract EXIF information for '%s'" % filename)
 
 @route('/scaled-image/<height:int>/<filename:path>')
 def scaled_image(height, filename):

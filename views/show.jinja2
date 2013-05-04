@@ -33,6 +33,16 @@
     {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
     <br />
     <img src='/scaled-image/{{ height or 600 }}/{{ filename }}' />
+    <div id='exif'>
+      {% if exif %}
+        <strong>Camera:</strong> {{ exif['Model'] }}<br />
+        <strong>Parameters:</strong> {{ exif['FocalLength'][0] }} mm, f/{{ exif['FNumber'][0]/exif['FNumber'][1] }}, 
+                 exp. {{ exif['ExposureTime'][0] }}/{{ exif['ExposureTime'][1] }} sec, ISO {{ exif['ISOSpeedRatings'] }}<br />
+        <strong>File:</strong> JPG, {{ exif['ExifImageWidth'] }}x{{ exif['ExifImageHeight'] }} pix, {{ '%.2f'|format(filesize) }} MB
+      {% else %}
+        <strong>No EXIF information stored in this image.</strong>
+      {% endif %}
+    </div>    
     </center>
     {% if next %}<img style='display:none' src='/scaled-image/{{ height or 600 }}/{{ next }}' />{% endif %}
     {% if previous %}<img style='display:none' src='/scaled-image/{{ height or 600 }}/{{ previous }}' />{% endif %}

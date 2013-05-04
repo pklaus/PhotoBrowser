@@ -14,3 +14,6 @@ body {font:13px Arial, Helvetica, sans-serif; color:#FFF;}
 a {text-decoration:none; color:#888; outline:none; cursor:pointer;}
 a:hover {text-decoration:underline;}
 
+
+#exif { position: absolute; right: 0; top: 0; }
+
