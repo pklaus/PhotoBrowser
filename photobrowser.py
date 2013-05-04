@@ -107,6 +107,8 @@ def show_images(album=None):
 @view('show.jinja2')
 def show_large_image(filename):
     filename = clean_url_path(filename)
+    if filename not in all_images():
+        abort(404, "image not found")
     images = all_images()
     height = request.query.height
     previous, next = None, None
@@ -130,12 +132,13 @@ def full_size_image(filename):
 @route('/scaled-image/<height:int>/<filename:path>')
 def scaled_image(height, filename):
     filename = clean_url_path(filename)
-    if height not in HEIGHTS: abort(404, "No scaled image of that height available.")
+    if filename not in all_images():
+        abort(404, "image not found")
+    if height not in HEIGHTS:
+        abort(404, "No scaled image of that height available.")
     outfile = os.path.splitext(filename)[0] + ".thumbnail.%d.jpg" % height
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
         return static_file(outfile, root=THUMBS_DIR)
-    if not os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
-        abort(404, "image not found")
     try:
         im = Image.open(os.path.join(IMAGE_FOLDER, filename))
         size = (height*2, height)
