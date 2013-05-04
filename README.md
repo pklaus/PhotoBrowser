@@ -18,6 +18,7 @@ Python modules needed:
 
 * CherryPy, a fast web server
 * PIL (Pillow on Python 3.3), the Python Imaging Library
+* Jinja2, a flexible HTML template engine
 
 ##### Installation on Windows 2012 Server
 
@@ -25,7 +26,8 @@ Python modules needed:
 2. Install [distribute](http://www.lfd.uci.edu/~gohlke/pythonlibs/#distribute) and [pip](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pip)
 3. Use pip to install CherryPy: `set PATH=C:\Python33\Scripts;%PATH%` and `pip install cherrypy`
 4. Install [Pillow](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pil)
-5. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
+5. Install [Jinja2](http://www.lfd.uci.edu/~gohlke/pythonlibs/#jinja2)
+6. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
 
 #### Some ideas:
 
