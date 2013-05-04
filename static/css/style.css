@@ -1,0 +1,16 @@
+body {
+  background-color: #222;
+}
+
+/* base styles */
+* {margin:0; padding:0;}
+img {border:0;}
+.clear {clear:both; line-height:0; height:0; font-size:1px;}
+.marg {width:916px; margin:0 auto;}
+.mid {background:url(../images/bg.png) repeat top; width:100%; height:1108px; top:174px; left:0; position:absolute;}
+.top {background:url(../images/top.jpg) repeat-x top; width:100%; height:175px; top:0; left:0; position:absolute;}
+.bottom {background:url(../images/bottom.jpg) repeat-x top; width:100%; height:389px; top:1109px; position:absolute; left:0;}
+body {font:13px Arial, Helvetica, sans-serif; color:#FFF;}
+a {text-decoration:none; color:#888; outline:none; cursor:pointer;}
+a:hover {text-decoration:underline;}
+
