@@ -36,10 +36,6 @@ Python modules needed:
 * Let the user delete bad JPEGs.
 * Include an API call to generate all thumbnails at once.
 * Clean up image directories (delete orphaned RAW files).
-* Display EXIF information like this:  
-  Camera: Canon 20D  
-  Parameters: 50 mm, f/8.0, exp. 1/1000 sec, ISO 200  
-  File: JPG, 3504x2336 pix, 3.0 MB
 * Add a search field to search for album names or a slider to restrict the dates of the albums displayed 
 
 #### References
