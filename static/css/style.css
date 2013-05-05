@@ -15,5 +15,14 @@ a {text-decoration:none; color:#888; outline:none; cursor:pointer;}
 a:hover {text-decoration:underline;}
 
 
-#exif { position: absolute; right: 0; top: 0; }
+#exif {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px;
+  border-radius: 0 0 0 22px; 
+  -moz-border-radius: 0 0 0 27px; 
+  -webkit-border-radius: 0 0 0 27px; 
+  background-color: rgba(50,50,50,0.9);
+}
 
