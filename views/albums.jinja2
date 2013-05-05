@@ -6,15 +6,11 @@
   {% for album in albums %}
     <a name='{{ album }}'></a>
     <a href='/album/{{ album }}'>
-    {#
-    {% if album|date %}
-      <h3>{{ album }}</h3>
-      <div>{{ album|date }}</div>
+    {% if album|extract_date %}
+      <h3><strong>{{ album|extract_date|format_date }}</strong> - {{ album|remove_date }}</h3>
     {% else %}
       <h3>{{ album }}</h3>
     {% endif %}
-    #}
-    <h3>{{ album }}</h3>
     </a>
     {% for album_image in album_images[album] %}
       <a name='{{ album_image }}'></a>

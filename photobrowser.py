@@ -9,10 +9,13 @@ import errno
 import re
 import argparse
 import random
+from functools import partial
+from datetime import date
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
 from bottle import route, run, get, request, response, redirect, error, abort, install, TEMPLATE_PATH
-from bottle import jinja2_view as view, jinja2_template as template
+from bottle import jinja2_template as template
+from bottle import jinja2_view
 ## needs  `pip install PIL`  :
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -30,6 +33,33 @@ STATIC_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0],'static'
 JPEG_QUALITY = 80
 IMAGE_FOLDER = './'
 IMAGE_REGEX = None
+
+filter_dict = {}
+view = partial(jinja2_view,
+          template_settings={'filters': filter_dict})
+
+def filter(func):
+	"""Decorator to add the function to filter_dict"""
+	filter_dict[func.__name__] = func
+	return func
+
+@filter
+def remove_date(text):
+    try:
+        return re.match('^\d+-\d+-\d+_(.*)', text).groups()[0].replace('-',' ').replace('_',', ')
+    except AttributeError:
+        return None
+
+@filter
+def extract_date(text):
+    try:
+        return date(*[int(number) for number in re.match('^(\d+)-(\d+)-(\d+)_', text).groups()])
+    except AttributeError:
+        return None
+
+@filter
+def format_date(dt):
+    return dt.strftime("%a, %d %B %Y")
 
 def mkdir_p(path):
     try:
