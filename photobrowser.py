@@ -296,6 +296,8 @@ install(CachePlugin())
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
+    parser.add_argument('-6', '--ipv6', action='store_true',
+    help='Listen to incoming connections via IPv6 instead of IPv4.')
     parser.add_argument('-t', '--thumbs-dir', default=THUMBS_DIR, help='The directory to store thumbnails in.')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
@@ -316,9 +318,13 @@ if __name__ == '__main__':
     if args.jpeg_quality not in range(0,101):
         args.error('JPEG quality must be in the range of 0-100.')
     JPEG_QUALITY = args.jpeg_quality
+    if args.debug and args.ipv6:
+        args.error('You cannot use IPv6 in debug mode, sorry.')
     if args.debug:
         run(host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
-        #run(host='0.0.0.0', port=args.port)
-        run(host='0.0.0.0', server='cherrypy', port=args.port)
+        if args.ipv6:
+            run(host='::', server='cherrypy', port=args.port)
+        else:
+            run(host='0.0.0.0', server='cherrypy', port=args.port)
 
