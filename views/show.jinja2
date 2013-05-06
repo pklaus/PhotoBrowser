@@ -38,8 +38,8 @@
     <div id='exif'>
       {% if exif %}
         <strong>Camera:</strong> {{ exif['Model'] }}<br />
-        <strong>Parameters:</strong> {{ exif['FocalLength'][0] }} mm, f/{{ exif['FNumber'][0]/exif['FNumber'][1] }}, 
-                 exp. {{ exif['ExposureTime'][0] }}/{{ exif['ExposureTime'][1] }} sec, ISO {{ exif['ISOSpeedRatings'] }}<br />
+        <strong>Parameters:</strong> {{ exif['FocalLength']|format_focallength }}, {{ exif['FNumber']|format_fnumber }}, 
+                 exp. {{ exif['ExposureTime']|format_exposuretime }}, ISO {{ exif['ISOSpeedRatings'] }}<br />
         <strong>File:</strong> JPG, {{ exif['ExifImageWidth'] }}x{{ exif['ExifImageHeight'] }} pix, {{ '%.2f'|format(filesize) }} MB
       {% else %}
         <strong>No EXIF information stored in this image.</strong>

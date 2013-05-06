@@ -11,6 +11,7 @@ import argparse
 import random
 from functools import partial
 from datetime import date
+from fractions import Fraction
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
 from bottle import route, run, get, request, response, redirect, error, abort, install, TEMPLATE_PATH
@@ -60,6 +61,30 @@ def extract_date(text):
 @filter
 def format_date(dt):
     return dt.strftime("%a, %d %B %Y")
+
+@filter
+def format_focallength(exif_focallength):
+    focallength = float(exif_focallength[0])/float(exif_focallength[1])
+    if focallength % 1. >= 0.05:
+        return "{0:.1f} mm".format(focallength)
+    else:
+        return "{0} mm".format(round(focallength))
+
+@filter
+def format_fnumber(exif_fnumber):
+    fnumber = float(exif_fnumber[0])/float(exif_fnumber[1])
+    if fnumber % 1. >= 0.05:
+        return "f/{0:.1f}".format(fnumber)
+    else:
+        return "f/{0}".format(round(fnumber))
+
+@filter
+def format_exposuretime(exif_exposure):
+    exposure = Fraction(exif_exposure[0], exif_exposure[1])
+    if exposure < 1.:
+        return "{0} sec".format(exposure)
+    else:
+        return "{0:.1f} sec".format(float(exposure))
 
 def mkdir_p(path):
     try:
