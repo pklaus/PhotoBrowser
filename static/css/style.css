@@ -30,3 +30,10 @@ a:hover {text-decoration:underline;}
   padding: 3px;
 }
 
+#footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 5px;
+}
+
