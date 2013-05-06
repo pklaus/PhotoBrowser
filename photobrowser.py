@@ -236,6 +236,7 @@ def json_exif_information(filename):
             if type(content['value']) == bytes:
                 content['value'] = repr(content['value'])
             if content['name'] == 'MakerNote': continue
+            if content['name'] == 'GPSInfo': continue
             ret[tag] = content
         return ret
     except IOError:
