@@ -76,6 +76,8 @@ def format_fnumber(exif_fnumber):
 def format_exposuretime(exif_exposure):
     exposure = Fraction(exif_exposure[0], exif_exposure[1])
     if exposure < 1.:
+        if len(str(exposure)) > 6:
+            exposure = Fraction(1, round(1/exposure))
         return "{0} sec".format(exposure)
     else:
         return "{0:.1f} sec".format(float(exposure))
