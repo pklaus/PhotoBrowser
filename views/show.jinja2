@@ -31,7 +31,6 @@
       <a href='/images#{{ filename }}'>All Images</a> | 
       {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>Album View</a> | {% endif %}
       <a href='/image/{{ filename }}'>Full Size Image</a>
-       | <a onClick="toggleFullScreen()">Full Screen Mode</a>
       {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
     </div>
     <img src='/scaled-image/{{ height or 600 }}/{{ filename }}' />
