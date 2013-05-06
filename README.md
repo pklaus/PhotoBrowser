@@ -37,6 +37,7 @@ Python modules needed:
 * Include an API call to generate all thumbnails at once. Or do this via a shell script.
 * Clean up image directories (delete orphaned RAW files).
 * Add a search field to search for album names or a slider to restrict the dates of the albums displayed
+* Add a CLI option to start the server in IPv6 mode
 
 #### References
 
