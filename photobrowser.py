@@ -65,18 +65,12 @@ def format_date(dt):
 @filter
 def format_focallength(exif_focallength):
     focallength = float(exif_focallength[0])/float(exif_focallength[1])
-    if focallength % 1. >= 0.05:
-        return "{0:.1f} mm".format(focallength)
-    else:
-        return "{0} mm".format(round(focallength))
+    return "{0:.1f}".format(focallength).rstrip('0').rstrip('.') + " mm"
 
 @filter
 def format_fnumber(exif_fnumber):
     fnumber = float(exif_fnumber[0])/float(exif_fnumber[1])
-    if fnumber % 1. >= 0.05:
-        return "f/{0:.1f}".format(fnumber)
-    else:
-        return "f/{0}".format(round(fnumber))
+    return "f/{0:.2g}".format(fnumber)
 
 @filter
 def format_exposuretime(exif_exposure):
