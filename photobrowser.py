@@ -47,14 +47,14 @@ def filter(func):
 @filter
 def remove_date(text):
     try:
-        return re.match('^\d+-\d+-\d+_(.*)', text).groups()[0].replace('-',' ').replace('_',', ')
+        return re.match('^\d+-\d+-\d+[_ ](.*)', text).groups()[0].replace('-',' ').replace('_',', ')
     except AttributeError:
         return None
 
 @filter
 def extract_date(text):
     try:
-        return date(*[int(number) for number in re.match('^(\d+)-(\d+)-(\d+)_', text).groups()])
+        return date(*[int(number) for number in re.match('^(\d+)-(\d+)-(\d+)[_ ]', text).groups()])
     except AttributeError:
         return None
 
