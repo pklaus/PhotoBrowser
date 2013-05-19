@@ -106,7 +106,10 @@ pb = Bottle()
 @view('home.jinja2')
 def index_page():
     images = all_images()
-    images = random.sample(images, 12)
+    try:
+        images = random.sample(images, 12)
+    except ValueError:
+        images = images
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @pb.get('/api/list_images')
