@@ -41,7 +41,7 @@
                  exp. {{ exif['ExposureTime']|format_exposuretime }}, ISO {{ exif['ISOSpeedRatings'] }}<br />
         <strong>File:</strong> JPG, {{ exif['ExifImageWidth'] }}x{{ exif['ExifImageHeight'] }} pix, {{ '%.2f'|format(filesize) }} MB
       {% else %}
-        <strong>No EXIF information stored in this image.</strong>
+        <strong>No or incomplete EXIF information<br />stored in this image.</strong>
       {% endif %}
     </div>    
     </center>
