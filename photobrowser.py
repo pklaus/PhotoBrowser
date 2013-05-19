@@ -14,7 +14,7 @@ from datetime import date
 from fractions import Fraction
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
-from bottle import route, run, get, request, response, redirect, error, abort, install, TEMPLATE_PATH
+from bottle import Bottle, run, request, response, redirect, error, abort, TEMPLATE_PATH
 from bottle import jinja2_template as template
 from bottle import jinja2_view
 ## needs  `pip install PIL`  :
@@ -100,14 +100,16 @@ def clean_url_path(path):
         path = os.path.normpath(path)
     return path
 
-@get('/')
+pb = Bottle()
+
+@pb.get('/')
 @view('home.jinja2')
 def index_page():
     images = all_images()
     images = random.sample(images, 12)
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
-@get('/api/list_images')
+@pb.get('/api/list_images')
 def list_images():
     response.headers['Content-Type'] = 'text/plain; charset=UTF8'
     return pprint.pformat(all_images())
@@ -120,7 +122,7 @@ def sorted_albums( l ):
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key) ] 
     return sorted(l, key = alphanum_key)
 
-@get('/albums')
+@pb.get('/albums')
 @view('albums.jinja2')
 def albums():
     images = all_images()
@@ -141,12 +143,12 @@ def albums():
         album_images[album] = album_images[album][:6]
     return dict(albums=albums, album_images=album_images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
-@get('/album/<album:path>')
+@pb.get('/album/<album:path>')
 def show_album(album):
     album = clean_url_path(album)
     return show_images(album)
 
-@get('/images')
+@pb.get('/images')
 @view('images.jinja2')
 def show_images(album=None):
     images = all_images()
@@ -154,7 +156,7 @@ def show_images(album=None):
         images = [image for image in images if os.path.split(image)[0] == album]
     return dict(images=images, album=album, thumb_height=DEFAULT_THUMB_HEIGHT)
 
-@route('/show/<filename:path>')
+@pb.route('/show/<filename:path>')
 @view('show.jinja2')
 def show_large_image(filename):
     filename = clean_url_path(filename)
@@ -181,7 +183,7 @@ def show_large_image(filename):
         exif = None
     return dict(album=album, filename=filename, next=next, previous=previous, height=height, exif=exif, filesize=os.path.getsize(os.path.join(IMAGE_FOLDER, filename))/(1024.*1024.))
 
-@route('/image/<filename:path>')
+@pb.route('/image/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
     return static_file(filename, root=IMAGE_FOLDER)
@@ -219,7 +221,7 @@ def named_exif(exif_data):
         ret_exif[decoded] = value
     return ret_exif
 
-@route('/exif/<filename:path>')
+@pb.route('/exif/<filename:path>')
 def json_exif_information(filename):
     """
     Return EXIF information in JSON format.
@@ -242,7 +244,7 @@ def json_exif_information(filename):
     except IOError:
         abort(500, "cannot extract EXIF information for '%s'" % filename)
 
-@route('/scaled-image/<height:int>/<filename:path>')
+@pb.route('/scaled-image/<height:int>/<filename:path>')
 def scaled_image(height, filename):
     filename = clean_url_path(filename)
     if filename not in all_images():
@@ -271,7 +273,7 @@ def scaled_image(height, filename):
         abort(500, "cannot create thumbnail for '%s'" % filename)
     return static_file(outfile, root=THUMBS_DIR)
 
-@route('/static/<path:path>')
+@pb.route('/static/<path:path>')
 def static(path):
     return static_file(path, root=STATIC_PATH)
 
@@ -294,7 +296,7 @@ class CachePlugin(object):
 
         return wrapper
 
-install(CachePlugin())
+pb.install(CachePlugin())
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
@@ -324,10 +326,10 @@ if __name__ == '__main__':
     if args.debug and args.ipv6:
         args.error('You cannot use IPv6 in debug mode, sorry.')
     if args.debug:
-        run(host='0.0.0.0', port=args.port, debug=True, reloader=True)
+        run(app=pb, host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
         if args.ipv6:
-            run(host='::', server='cherrypy', port=args.port)
+            run(app=pb, host='::', server='cherrypy', port=args.port)
         else:
-            run(host='0.0.0.0', server='cherrypy', port=args.port)
+            run(app=pb, host='0.0.0.0', server='cherrypy', port=args.port)
 
