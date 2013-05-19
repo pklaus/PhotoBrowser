@@ -91,7 +91,13 @@ def mkdir_p(path):
         else: raise
 
 def all_images():
-    return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
+    if type(IMG_FILTER) == list:
+        retl = []
+        for filter in IMG_FILTER:
+            retl += [IMAGE_REGEX.match(image).group(1) for image in glob.glob(filter)]
+        return retl
+    else:
+        return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
 
 def clean_url_path(path):
     try:
@@ -322,7 +328,9 @@ if __name__ == '__main__':
     except:
         sys.exit('Could not create the thumbnail folder. Exiting')
     if args.subdirs:
-        IMG_FILTER = IMAGE_FOLDER + '/*/' + IMG_FILTER
+        IMG_FILTER = [ IMAGE_FOLDER + '/' + IMG_FILTER, IMAGE_FOLDER + '/*/' + IMG_FILTER, IMAGE_FOLDER + '/*/*/' + IMG_FILTER]
+    else:
+        IMG_FILTER = IMAGE_FOLDER + '/' + IMG_FILTER
     if args.jpeg_quality not in range(0,101):
         args.error('JPEG quality must be in the range of 0-100.')
     JPEG_QUALITY = args.jpeg_quality
