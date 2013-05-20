@@ -110,14 +110,25 @@ def index_page():
         images = images
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
+@api.get('/clear-cache')
+def clear_cache():
+    global CACHED_IMGs
+    CACHED_IMGs[:] = []
+    return dict(result='success')
+
+CACHED_IMGs = None
 @api.get('/list/images')
 def all_images():
+    global CACHED_IMGs
+    if CACHED_IMGs: return CACHED_IMGs
     if type(IMG_FILTER) == list:
         retl = []
         for filter in IMG_FILTER:
             retl += [IMAGE_REGEX.match(image).group(1) for image in glob.glob(filter)]
+        CACHED_IMGs = retl
         return retl
     else:
+        CACHED_IMGs = retl
         return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
 
 @api.get('/list/albums')
