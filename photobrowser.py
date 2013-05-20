@@ -117,7 +117,6 @@ def clear_cache():
     return dict(result='success')
 
 CACHED_IMGs = None
-@api.get('/list/images')
 def all_images():
     global CACHED_IMGs
     if CACHED_IMGs: return CACHED_IMGs
@@ -131,7 +130,10 @@ def all_images():
         CACHED_IMGs = retl
         return [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(IMG_FILTER)]
 
-@api.get('/list/albums')
+@api.get('/list/images')
+def list_images():
+    return dict(images=all_images())
+
 def all_albums():
     images = all_images()
     albums = [os.path.split(image)[0] for image in images]
@@ -139,6 +141,10 @@ def all_albums():
     albums = set(albums)
     albums = sorted_albums(albums)
     return albums
+
+@api.get('/list/albums')
+def list_albums():
+    return dict(albums=all_albums())
 
 def sorted_albums( l ): 
     """ Sort the given iterable in the way that humans expect.
