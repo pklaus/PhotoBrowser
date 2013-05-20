@@ -92,9 +92,9 @@ def mkdir_p(path):
 
 def clean_url_path(path):
     try:
-        path = os.path.normpath(path.encode('latin1').decode('utf8'))
+        path = path.encode('latin1').decode('utf8')
     except UnicodeEncodeError:
-        path = os.path.normpath(path)
+        pass
     return path
 
 pb = Bottle()
@@ -124,12 +124,12 @@ def all_images():
     if type(IMG_FILTER) == list:
         retl = []
         for filter in IMG_FILTER:
-            retl += [IMAGE_REGEX.match(image).group(1) for image in glob.glob(filter)]
+            retl += [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(filter)]
         CACHED_IMGs = retl
         return retl
     else:
         CACHED_IMGs = retl
-        return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
+        return [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(IMG_FILTER)]
 
 @api.get('/list/albums')
 def all_albums():
