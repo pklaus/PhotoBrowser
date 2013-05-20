@@ -90,15 +90,6 @@ def mkdir_p(path):
             pass
         else: raise
 
-def all_images():
-    if type(IMG_FILTER) == list:
-        retl = []
-        for filter in IMG_FILTER:
-            retl += [IMAGE_REGEX.match(image).group(1) for image in glob.glob(filter)]
-        return retl
-    else:
-        return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
-
 def clean_url_path(path):
     try:
         path = os.path.normpath(path.encode('latin1').decode('utf8'))
@@ -107,6 +98,7 @@ def clean_url_path(path):
     return path
 
 pb = Bottle()
+api = Bottle()
 
 @pb.get('/')
 @view('home.jinja2')
@@ -118,10 +110,24 @@ def index_page():
         images = images
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
-@pb.get('/api/list_images')
-def list_images():
-    response.headers['Content-Type'] = 'text/plain; charset=UTF8'
-    return pprint.pformat(all_images())
+@api.get('/list/images')
+def all_images():
+    if type(IMG_FILTER) == list:
+        retl = []
+        for filter in IMG_FILTER:
+            retl += [IMAGE_REGEX.match(image).group(1) for image in glob.glob(filter)]
+        return retl
+    else:
+        return [IMAGE_REGEX.match(image).group(1) for image in glob.glob(IMG_FILTER)]
+
+@api.get('/list/albums')
+def all_albums():
+    images = all_images()
+    albums = [os.path.split(image)[0] for image in images]
+    albums = [album for album in albums if len(album)>0]
+    albums = set(albums)
+    albums = sorted_albums(albums)
+    return albums
 
 def sorted_albums( l ): 
     """ Sort the given iterable in the way that humans expect.
@@ -135,12 +141,9 @@ def sorted_albums( l ):
 @view('albums.jinja2')
 def albums():
     images = all_images()
-    albums = [os.path.split(image)[0] for image in images]
-    albums = [album for album in albums if len(album)>0]
+    albums = all_albums()
     if len(albums) == 0:
         return "No albums found"
-    albums = set(albums)
-    albums = sorted_albums(albums)
     # Sort images into albums
     album_images = dict()
     for album in albums:
@@ -192,7 +195,7 @@ def show_large_image(filename):
         exif = None
     return dict(album=album, filename=filename, next=next, previous=previous, height=height, exif=exif, filesize=os.path.getsize(os.path.join(IMAGE_FOLDER, filename))/(1024.*1024.))
 
-@pb.route('/image/<filename:path>')
+@api.route('/image/full/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
     return static_file(filename, root=IMAGE_FOLDER)
@@ -230,7 +233,7 @@ def named_exif(exif_data):
         ret_exif[decoded] = value
     return ret_exif
 
-@pb.route('/exif/<filename:path>')
+@api.route('/exif/<filename:path>')
 def json_exif_information(filename):
     """
     Return EXIF information in JSON format.
@@ -253,7 +256,7 @@ def json_exif_information(filename):
     except IOError:
         abort(500, "cannot extract EXIF information for '%s'" % filename)
 
-@pb.route('/scaled-image/<height:int>/<filename:path>')
+@api.route('/image/scaled/<height:int>/<filename:path>')
 def scaled_image(height, filename):
     filename = clean_url_path(filename)
     if filename not in all_images():
@@ -306,6 +309,8 @@ class CachePlugin(object):
         return wrapper
 
 pb.install(CachePlugin())
+
+pb.mount(api, '/api')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')

@@ -15,7 +15,7 @@
     {% for album_image in album_images[album] %}
       <a name='{{ album_image }}'></a>
       <a href='/show/{{ album_image }}'>
-        <img src='/scaled-image/{{ thumb_height }}/{{ album_image }}'>
+        <img src='/api/image/scaled/{{ thumb_height }}/{{ album_image }}'>
       </a>
     {% endfor %}
   {% endfor %}
