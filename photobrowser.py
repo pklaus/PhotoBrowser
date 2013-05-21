@@ -8,7 +8,8 @@ import os, sys
 import errno
 import re
 import argparse
-import random
+from random import sample, choice
+import string
 from functools import partial
 from datetime import date
 from fractions import Fraction
@@ -20,6 +21,8 @@ from bottle import jinja2_view
 ## needs  `pip install PIL`  :
 from PIL import Image
 from PIL.ExifTags import TAGS
+## needs `pip install beaker`  :
+from beaker.middleware import SessionMiddleware
 ### ------ Internal Dependencies
 from hacks import static_file
 
@@ -34,6 +37,7 @@ STATIC_PATH = os.path.join(os.path.split(os.path.realpath(__file__))[0],'static'
 JPEG_QUALITY = 80
 IMAGE_FOLDER = './'
 IMAGE_REGEX = None
+ADMIN_PASSWORD = None
 
 filter_dict = {}
 view = partial(jinja2_view,
@@ -90,6 +94,9 @@ def mkdir_p(path):
             pass
         else: raise
 
+def create_id(size=8):
+    return ''.join([choice(string.ascii_letters + string.digits) for i in range(size)])
+
 def clean_url_path(path):
     try:
         path = path.encode('latin1').decode('utf8')
@@ -105,7 +112,7 @@ api = Bottle()
 def index_page():
     images = all_images()
     try:
-        images = random.sample(images, 12)
+        images = sample(images, 12)
     except ValueError:
         images = images
     return dict(images=images, thumb_height=DEFAULT_THUMB_HEIGHT)
@@ -329,12 +336,73 @@ pb.install(CachePlugin())
 
 pb.mount(api, '/api')
 
+@pb.route('/login')
+def login():
+    del response.headers['Cache-Control']
+    return '''
+        Please authenticate to view images.
+        <form action="/login" method="post">
+            Name:    <input type="text" name="name" />
+            Password: <input type="password" name="password" />
+            <input type="submit" value="Login" />
+        </form>
+    '''
+
+def check_login(name, password):
+    return name == 'admin' and password == ADMIN_PASSWORD
+
+@pb.route('/login', method='POST')
+def do_login():
+    del response.headers['Cache-Control']
+    name     = request.forms.get('name')
+    password = request.forms.get('password')
+    if check_login(name, password):
+        set_admin()
+        redirect('/')
+    return 'LOGIN FAILED'
+
+def set_admin():
+    s = request.environ.get('beaker.session')
+    s['admin'] = True
+
+def auth(callback):
+    def wrapper(*args, **kwargs):
+        s = request.environ.get('beaker.session')
+        if s.get('admin', False):
+            return callback(*args, **kwargs)
+        else:
+            if request.remote_addr.startswith('192.168.'):
+                # visitors from local nets are automatically admins
+                set_admin()
+                return callback(*args, **kwargs)
+            if request.forms.get('name') and request.forms.get('password'):
+                return do_login(*args, **kwargs)
+            else:
+                return login(*args, **kwargs)
+    return wrapper
+pb.install(auth)
+
+session_opts = {
+    'session.type': 'file',
+    'session.cookie_expires': 300,
+    'session.data_dir': './.data',
+    'session.auto': True,
+    #'session.type': 'cookie',
+    #'validate_key': 'zoJT9pWaQ2IM',
+    #'encrypt_key': 'J7UolKPA1mIs'
+    #'session.cookie_expires': 1200,
+    #'session.auto': True
+}
+
+pb = SessionMiddleware(pb, session_opts)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
     parser.add_argument('-6', '--ipv6', action='store_true',
     help='Listen to incoming connections via IPv6 instead of IPv4.')
     parser.add_argument('-t', '--thumbs-dir', default=THUMBS_DIR, help='The directory to store thumbnails in.')
+    parser.add_argument('-a', '--admin-password', help='The admin password')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
@@ -358,6 +426,11 @@ if __name__ == '__main__':
     JPEG_QUALITY = args.jpeg_quality
     if args.debug and args.ipv6:
         args.error('You cannot use IPv6 in debug mode, sorry.')
+    if args.admin_password:
+        ADMIN_PASSWORD = args.admin_password
+    else:
+        ADMIN_PASSWORD = create_id(size=12)
+    print("Admin Password Set To: {0}".format(ADMIN_PASSWORD))
     if args.debug:
         run(app=pb, host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
