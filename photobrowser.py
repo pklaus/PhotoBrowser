@@ -341,12 +341,12 @@ def login():
     del response.headers['Cache-Control']
     return '''
         Please authenticate to view images.
-        <form action="/login" method="post">
+        <form action="/login?requesting={0}" method="post">
             Name:    <input type="text" name="name" />
             Password: <input type="password" name="password" />
             <input type="submit" value="Login" />
         </form>
-    '''
+    '''.format(request.query.get('requesting', '/'))
 
 def check_login(name, password):
     return name == 'admin' and password == ADMIN_PASSWORD
@@ -358,7 +358,7 @@ def do_login():
     password = request.forms.get('password')
     if check_login(name, password):
         set_admin()
-        redirect('/')
+        redirect(request.query.get('requesting', '/'))
     return 'LOGIN FAILED'
 
 def set_admin():
@@ -374,11 +374,10 @@ def auth(callback):
             if request.remote_addr.startswith('192.168.'):
                 # visitors from local nets are automatically admins
                 set_admin()
+            if request.path.startswith('/login'):
                 return callback(*args, **kwargs)
-            if request.forms.get('name') and request.forms.get('password'):
-                return do_login(*args, **kwargs)
             else:
-                return login(*args, **kwargs)
+                redirect('/login?requesting='+request.path)
     return wrapper
 pb.install(auth)
 
