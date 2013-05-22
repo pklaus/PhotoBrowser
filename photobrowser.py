@@ -38,6 +38,7 @@ JPEG_QUALITY = 80
 IMAGE_FOLDER = './'
 IMAGE_REGEX = None
 ADMIN_PASSWORD = None
+ALLOW_CRAWLING = 'Disallow'
 
 filter_dict = {}
 view = partial(jinja2_view,
@@ -317,6 +318,11 @@ def static(path):
 def error404(error):
     return "Error 404 - The requested document does not exist."
 
+@pb.route('/robots.txt')
+def robots():
+    response.content_type = 'text/plain'
+    return "User-agent: *\n{0}: /".format(ALLOW_CRAWLING)
+
 CACHE_SECONDS = 3600
 class CachePlugin(object):
     """ adopted from https://github.com/jtackaberry/stagehand/blob/master/src/web/server/__init__.py """
@@ -374,7 +380,7 @@ def auth(callback):
             if request.remote_addr.startswith('192.168.'):
                 # visitors from local nets are automatically admins
                 set_admin()
-            if request.path.startswith('/login'):
+            if request.path.startswith('/login') or request.path.startswith('/robots.txt'):
                 return callback(*args, **kwargs)
             else:
                 redirect('/login?requesting='+request.path)
@@ -404,6 +410,8 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--admin-password', help='The admin password')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
+    parser.add_argument('-c', '--allow-crawling', action='store_true',
+    help='Allow Search engines to index the site (only useful if accessible without password).')
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
@@ -430,6 +438,7 @@ if __name__ == '__main__':
     else:
         ADMIN_PASSWORD = create_id(size=12)
     print("Admin Password Set To: {0}".format(ADMIN_PASSWORD))
+    ALLOW_CRAWLING = 'Allow' if args.allow_crawling else 'Disallow'
     if args.debug:
         run(app=pb, host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
