@@ -13,6 +13,7 @@ import string
 from functools import partial
 from datetime import date
 from fractions import Fraction
+from ipaddress import ip_address
 ### ------ External Dependencies
 ## needs  `pip install bottle`  :
 from bottle import Bottle, run, request, response, redirect, error, abort, TEMPLATE_PATH
@@ -377,9 +378,10 @@ def auth(callback):
         if s.get('admin', False):
             return callback(*args, **kwargs)
         else:
-            if request.remote_addr.startswith('192.168.'):
+            if ip_address(request.remote_addr).is_private:
                 # visitors from local nets are automatically admins
                 set_admin()
+                return callback(*args, **kwargs)
             if request.path.startswith('/login') or request.path.startswith('/robots.txt'):
                 return callback(*args, **kwargs)
             else:
