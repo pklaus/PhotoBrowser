@@ -43,7 +43,6 @@ Python modules needed:
 * Could it run faster on small ARM machines?
   Probably by limiting the amount of threads and reimplementing
   [`class CherryPyServer(ServerAdapter)`](https://github.com/defnull/bottle/blob/master/bottle.py#L2509)
-* robots.txt: disable indexing except when giving CLI parameter -i
 * configuration file with
   * salt
   * user accounts
