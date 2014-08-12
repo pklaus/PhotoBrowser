@@ -354,7 +354,7 @@ def scaled_image(height, filename):
             im.thumbnail(size, Image.ANTIALIAS)
             mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
             im.save(os.path.join(THUMBS_DIR, outfile), "JPEG", quality=JPEG_QUALITY)
-    except IOError:
+    except (IOError, NameError):
         abort(500, "cannot create thumbnail for '%s'" % filename)
     return static_file(outfile, root=THUMBS_DIR)
 
