@@ -354,7 +354,7 @@ class CachePlugin(object):
 
 pb.install(CachePlugin())
 
-pb.mount(api, '/api')
+pb.mount('/api', api)
 
 @pb.route('/login')
 def login():
