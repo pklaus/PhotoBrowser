@@ -26,7 +26,7 @@ except ImportError:
     require_external('bottle', 'get it with `pip install bottle`')
 try:
     from PIL import Image
-    from PIL.ExifTags import TAGS
+    from PIL import ExifTags
 except ImportError:
     require_external('PIL', 'get it with `pip install PIL`')
 try:
@@ -255,6 +255,10 @@ def show_large_image(filename):
     album = os.path.split(filename)[0]
     try:
         exif = named_exif( clean_exif_data( get_exif_data(os.path.join(IMAGE_FOLDER, filename))))
+        if not 'Model' in exif: exif['Model'] = 'unknown'
+        pixsize = get_image_size(os.path.join(IMAGE_FOLDER, filename))
+        exif['ExifImageWidth'] = pixsize[0]
+        exif['ExifImageHeight'] = pixsize[1]
         for item in ['Model', 'FocalLength', 'FNumber', 'ExposureTime', 'ISOSpeedRatings', 'ExifImageWidth', 'ExifImageHeight']:
             if not item in exif: exif = None
     except:
@@ -266,14 +270,17 @@ def full_size_image(filename):
     filename = clean_url_path(filename)
     return static_file(filename, root=IMAGE_FOLDER)
 
+def get_image_size(filepath):
+    with Image.open(filepath) as img:
+        return img.size
 
 def get_exif_data(filename):
-    im = Image.open(filename)
-    exif = im._getexif()
-    ret = dict()
-    for tag, value in exif.items():
-        ret[tag] = value
-    return ret
+    with Image.open(filename) as im:
+        exif = im._getexif()
+        ret = dict()
+        for tag, value in exif.items():
+            ret[tag] = value
+        return ret
 
 def clean_exif_data(exif_data):
     ret_exif = dict()
@@ -288,14 +295,14 @@ def clean_exif_data(exif_data):
 def structure_exif_data(exif_data):
     ret_exif = dict()
     for tag, value in exif_data.items():
-        decoded = TAGS.get(tag, tag)
+        decoded = ExifTags.TAGS.get(tag, tag)
         ret_exif[tag] = dict(name=decoded, value=value)
     return ret_exif
 
 def named_exif(exif_data):
     ret_exif = dict()
     for tag, value in exif_data.items():
-        decoded = TAGS.get(tag, tag)
+        decoded = ExifTags.TAGS.get(tag, tag)
         ret_exif[decoded] = value
     return ret_exif
 
@@ -333,20 +340,20 @@ def scaled_image(height, filename):
     if os.path.isfile(os.path.join(THUMBS_DIR, outfile)):
         return static_file(outfile, root=THUMBS_DIR)
     try:
-        im = Image.open(os.path.join(IMAGE_FOLDER, filename))
-        size = (height*2, height)
-        exif = im._getexif()
-        if exif != None:
-            for tag, value in exif.items():
-                decoded = TAGS.get(tag, tag)
-                if decoded == 'Orientation':
-                    if value == 3: im = im.rotate(180)
-                    if value == 6: im = im.rotate(270)
-                    if value == 8: im = im.rotate(90)
-                    break
-        im.thumbnail(size, Image.ANTIALIAS)
-        mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
-        im.save(os.path.join(THUMBS_DIR, outfile), "JPEG", quality=JPEG_QUALITY)
+        with Image.open(os.path.join(IMAGE_FOLDER, filename)) as im:
+            size = (height*2, height)
+            exif = im._getexif()
+            if exif != None:
+                for tag, value in exif.items():
+                    decoded = ExifTags.TAGS.get(tag, tag)
+                    if decoded == 'Orientation':
+                        if value == 3: im = im.rotate(180)
+                        if value == 6: im = im.rotate(270)
+                        if value == 8: im = im.rotate(90)
+                        break
+            im.thumbnail(size, Image.ANTIALIAS)
+            mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
+            im.save(os.path.join(THUMBS_DIR, outfile), "JPEG", quality=JPEG_QUALITY)
     except IOError:
         abort(500, "cannot create thumbnail for '%s'" % filename)
     return static_file(outfile, root=THUMBS_DIR)
