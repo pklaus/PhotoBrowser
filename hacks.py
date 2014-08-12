@@ -1,14 +1,40 @@
+"""
+This file contains some *dirty* fixes for problems that
+occur with the functions/classes of external modules.
+It reimplements them with fixed behaviour.
+"""
+
 from bottle import HTTPResponse, request, HTTPError, parse_range_header, _file_iter_range, parse_date
 import os
 import mimetypes
 import time
 
-def static_file(filename, root, mimetype='auto', download=False):
+"""
+Custom version of static_file() from bottle.py:
+Adding the header 'Cache-Control' to the response
+Original to be found at https://github.com/defnull/bottle/blob/master/bottle.py
+"""
+
+def static_file(filename, root, mimetype='auto', download=False, charset='UTF-8'):
     """ Open a file in a safe way and return :exc:`HTTPResponse` with status
-        code 200, 305, 401 or 404. Set Content-Type, Content-Encoding,
-        Content-Length and Last-Modified header. Obey If-Modified-Since header
-        and HEAD requests.
+        code 200, 305, 403 or 404. The ``Content-Type``, ``Content-Encoding``,
+        ``Content-Length`` and ``Last-Modified`` headers are set if possible.
+        Special support for ``If-Modified-Since``, ``Range`` and ``HEAD``
+        requests.
+
+        :param filename: Name or path of the file to send.
+        :param root: Root path for file lookups. Should be an absolute directory
+            path.
+        :param mimetype: Defines the content-type header (default: guess from
+            file extension)
+        :param download: If True, ask the browser to open a `Save as...` dialog
+            instead of opening the file with the associated program. You can
+            specify a custom filename as a string. If not specified, the
+            original filename is used (default: False).
+        :param charset: The charset to use for files with a ``text/*``
+            mime-type. (default: UTF-8)
     """
+
     root = os.path.abspath(root) + os.sep
     filename = os.path.abspath(os.path.join(root, filename.strip('/\\')))
     headers = dict()
@@ -22,9 +48,11 @@ def static_file(filename, root, mimetype='auto', download=False):
 
     if mimetype == 'auto':
         mimetype, encoding = mimetypes.guess_type(filename)
-        if mimetype: headers['Content-Type'] = mimetype
         if encoding: headers['Content-Encoding'] = encoding
-    elif mimetype:
+
+    if mimetype:
+        if mimetype[:5] == 'text/' and charset and 'charset' not in mimetype:
+            mimetype += '; charset=%s' % charset
         headers['Content-Type'] = mimetype
 
     if download:
@@ -60,3 +88,4 @@ def static_file(filename, root, mimetype='auto', download=False):
         if body: body = _file_iter_range(body, offset, end-offset)
         return HTTPResponse(body, status=206, **headers)
     return HTTPResponse(body, **headers)
+
