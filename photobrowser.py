@@ -15,15 +15,28 @@ from datetime import date
 from fractions import Fraction
 from ipaddress import ip_address
 ### ------ External Dependencies
-## needs  `pip install bottle`  :
-from bottle import Bottle, run, request, response, redirect, error, abort, TEMPLATE_PATH
-from bottle import jinja2_template as template
-from bottle import jinja2_view
-## needs  `pip install PIL`  :
-from PIL import Image
-from PIL.ExifTags import TAGS
-## needs `pip install beaker`  :
-from beaker.middleware import SessionMiddleware
+def require_external(name, hint):
+    sys.stderr.write('This script requires {}. {}\n'.format(name, hint))
+    sys.exit(1)
+try:
+    from bottle import Bottle, run, request, response, redirect, error, abort, TEMPLATE_PATH
+    from bottle import jinja2_template as template
+    from bottle import jinja2_view
+except ImportError:
+    require_external('bottle', 'get it with `pip install bottle`')
+try:
+    from PIL import Image
+    from PIL.ExifTags import TAGS
+except ImportError:
+    require_external('PIL', 'get it with `pip install PIL`')
+try:
+    from beaker.middleware import SessionMiddleware
+except ImportError:
+    require_external('beaker', 'get it with `pip install beaker`')
+try:
+    from jinja2 import Template
+except ImportError:
+    require_external('jinja2', 'get it with `pip install jinja2`')
 ### ------ Internal Dependencies
 from hacks import static_file
 
