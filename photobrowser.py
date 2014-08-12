@@ -79,7 +79,11 @@ def extract_date(text):
 
 @filter
 def format_date(dt):
+    ## German style:
+    #return dt.strftime("%A, %d. %B %Y")
+    ## English style:
     return dt.strftime("%a, %d %B %Y")
+
 
 @filter
 def format_focallength(exif_focallength):
