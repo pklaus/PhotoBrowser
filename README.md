@@ -27,7 +27,8 @@ Python modules needed:
 3. Use pip to install CherryPy: `set PATH=C:\Python33\Scripts;%PATH%` and `pip install cherrypy`
 4. Install [Pillow](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pil)
 5. Install [Jinja2](http://www.lfd.uci.edu/~gohlke/pythonlibs/#jinja2)
-6. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
+6. Install beaker...
+7. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
 
 #### Some ideas:
 
@@ -37,6 +38,30 @@ Python modules needed:
 * Include an API call to generate all thumbnails at once. Or do this via a shell script.
 * Clean up image directories (delete orphaned RAW files).
 * Add a search field to search for album names or a slider to restrict the dates of the albums displayed
+* Add a search field to search for album names or a slider to restrict the dates of the albums displayed.
+* Second corner (top left) showing album name and  "# of # album images".
+* Replace backslash in links with slash
+* Could it run faster on small ARM machines?
+  Probably by limiting the amount of threads and reimplementing
+  [`class CherryPyServer(ServerAdapter)`](https://github.com/defnull/bottle/blob/master/bottle.py#L2509)
+* robots.txt: disable indexing except when giving CLI parameter -i
+* configuration file with
+  * salt
+  * user accounts
+  * admin password
+* Store cookies in a temporary directory, not in the project / photo directory.
+  See [tempfile.mktemp()](http://docs.python.org/2/library/tempfile.html#tempfile.mktemp).
+* Fix view 'All Albums' when there are images directly in the picture dir (not in subdirs).
+  `KeyError: ''` in line 177.
+* AJAX Album filter as the one in
+  <http://jquerymobile.com/demos/1.2.0/docs/lists/lists-search-with-dividers.html>
+  see <http://api.jquerymobile.com/listview/>
+  and <http://api.jquerymobile.com/data-attribute/>.  
+  It should also have a date range slider (just range slider: <http://jqueryui.com/slider/#range>).
+  What about <http://ghusse.github.io/jQRangeSlider/>?
+  Constructor: `$('#element').dateRangeSlider({});`
+  Options: `{arrows: false, }`
+  Theme: `/css/classic.css`
 
 #### References
 
