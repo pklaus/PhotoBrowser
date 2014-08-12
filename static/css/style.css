@@ -37,3 +37,14 @@ a:hover {text-decoration:underline;}
   padding: 5px;
 }
 
+#login {
+  text-align: center;
+  margin-top: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: large;
+  padding: 3em 2ex;
+  width: 500px;
+  border: 10px ridge gray;
+}
+

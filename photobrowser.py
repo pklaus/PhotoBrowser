@@ -388,37 +388,6 @@ class CachePlugin(object):
 
 pb.install(CachePlugin())
 
-pb.mount('/api', api)
-
-@pb.route('/login')
-def login():
-    del response.headers['Cache-Control']
-    return '''
-        Please authenticate to view images.
-        <form action="/login?requesting={0}" method="post">
-            Name:    <input type="text" name="name" />
-            Password: <input type="password" name="password" />
-            <input type="submit" value="Login" />
-        </form>
-    '''.format(request.query.get('requesting', '/'))
-
-def check_login(name, password):
-    return name == 'admin' and password == ADMIN_PASSWORD
-
-@pb.route('/login', method='POST')
-def do_login():
-    del response.headers['Cache-Control']
-    name     = request.forms.get('name')
-    password = request.forms.get('password')
-    if check_login(name, password):
-        set_admin()
-        redirect(request.query.get('requesting', '/'))
-    return 'LOGIN FAILED'
-
-def set_admin():
-    s = request.environ.get('beaker.session')
-    s['admin'] = True
-
 def auth(callback):
     def wrapper(*args, **kwargs):
         s = request.environ.get('beaker.session')
@@ -431,9 +400,44 @@ def auth(callback):
                 return callback(*args, **kwargs)
             if request.path.startswith('/login') or request.path.startswith('/robots.txt'):
                 return callback(*args, **kwargs)
-            else:
-                redirect('/login?requesting='+request.path)
+            if request.path.startswith('/static'):
+                return callback(*args, **kwargs)
+            redirect('/login?requesting='+request.path)
     return wrapper
+
+api.install(auth)
+
+pb.mount('/api', api)
+
+@pb.route('/login')
+@view('login.jinja2')
+def login():
+    try:
+        del response.headers['Cache-Control']
+    except:
+        pass
+    return dict(requesting=request.query.get('requesting', '/'))
+
+def check_login(name, password):
+    return name == 'admin' and password == ADMIN_PASSWORD
+
+@pb.route('/login', method='POST')
+def do_login():
+    try:
+        del response.headers['Cache-Control']
+    except:
+        pass
+    name     = request.forms.get('name')
+    password = request.forms.get('password')
+    if check_login(name, password):
+        set_admin()
+        redirect(request.query.get('requesting', '/'))
+    return 'LOGIN FAILED'
+
+def set_admin():
+    s = request.environ.get('beaker.session')
+    s['admin'] = True
+
 pb.install(auth)
 
 session_opts = {

@@ -1,0 +1,15 @@
+{% extends "base.jinja2" %}
+
+{% block title %}Please authenticate{% endblock %}
+
+{% block content %}
+  <div id="login">
+    Please authenticate to view images.
+    <form action="/login?requesting={{ requesting }}" method="post">
+        Name:    <input type="text" name="name" />
+        Passwort: <input type="password" name="password" />
+        <input type="submit" value="Login" />
+    </form>
+  </div>
+{% endblock %}
+
