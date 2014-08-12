@@ -136,33 +136,62 @@ def index_page():
 def clear_cache():
     global CACHED_IMGs
     CACHED_IMGs[:] = []
+    CACHED_ALBUMBs[:] = []
+    CACHED_ALBUM_IMGS = dict()
     return dict(result='success')
-
-CACHED_IMGs = None
-def all_images():
-    global CACHED_IMGs
-    if CACHED_IMGs: return CACHED_IMGs
-    if type(IMG_FILTER) == list:
-        retl = []
-        for filter in IMG_FILTER:
-            retl += [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(filter)]
-        CACHED_IMGs = retl
-        return retl
-    else:
-        CACHED_IMGs = retl
-        return [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(IMG_FILTER)]
 
 @api.get('/list/images')
 def list_images():
     return dict(images=all_images())
 
+CACHED_IMGs = None
+def all_images():
+    global CACHED_IMGs
+    if CACHED_IMGs: return CACHED_IMGs
+    retl = []
+    if type(IMG_FILTER) == list:
+        for filter in IMG_FILTER:
+            retl += [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(filter)]
+    else:
+        retl = [IMAGE_REGEX.match(image).group(1).replace('\\','/') for image in glob.glob(IMG_FILTER)]
+    retl.sort()
+    CACHED_IMGs = retl
+    return retl
+
+@api.get('/list/albums')
+def list_albums():
+    return dict(albums=all_albums())
+
+CACHED_ALBUMBs = None
 def all_albums():
+    global CACHED_ALBUMBs
+    if CACHED_ALBUMBs: return CACHED_ALBUMBs
     images = all_images()
     albums = [os.path.split(image)[0] for image in images]
     albums = [album for album in albums if len(album)>0]
     albums = set(albums)
     albums = sorted_albums(albums)
+    CACHED_ALBUMBs = albums
     return albums
+
+@api.get('/list/album_images')
+def list_album_images():
+    return dict(album_images=album_images())
+
+CACHED_ALBUM_IMGS = None
+def album_images():
+    global CACHED_ALBUM_IMGS
+    if CACHED_ALBUM_IMGS: return CACHED_ALBUM_IMGS
+    images = all_images()
+    albums = all_albums()
+    # Sort images into albums
+    album_images = dict()
+    for album in albums:
+        album_images[album] = []
+    for image in images:
+        album_images[os.path.split(image)[0]].append(image)
+    CACHED_ALBUM_IMGS = album_images
+    return album_images
 
 @api.get('/list/albums')
 def list_albums():
@@ -179,20 +208,14 @@ def sorted_albums( l ):
 @pb.get('/albums')
 @view('albums.jinja2')
 def albums():
-    images = all_images()
     albums = all_albums()
     if len(albums) == 0:
         return "No albums found"
-    # Sort images into albums
-    album_images = dict()
-    for album in albums:
-        album_images[album] = []
-    for image in images:
-        album_images[os.path.split(image)[0]].append(image)
-    # Purge the list of album_images
-    for album in albums:
-        album_images[album] = album_images[album][:6]
-    return dict(albums=albums, album_images=album_images, thumb_height=DEFAULT_THUMB_HEIGHT)
+    # Create partial list of album images:
+    partial_album_images = album_images()
+    for album in partial_album_images:
+        partial_album_images[album] = partial_album_images[album][:6]
+    return dict(albums=albums, album_images=partial_album_images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @pb.get('/album/<album:path>')
 def show_album(album):
