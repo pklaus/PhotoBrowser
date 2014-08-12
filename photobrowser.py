@@ -11,7 +11,7 @@ import argparse
 from random import sample, choice, randint
 import string
 from functools import partial
-from datetime import date
+from datetime import datetime, date, time
 from fractions import Fraction
 from ipaddress import ip_address
 import urllib.parse
@@ -204,6 +204,21 @@ def album_images():
 def list_albums():
     return dict(albums=all_albums())
 
+
+@api.get('/list/album_images')
+def album_images():
+    # Sort images into albums
+    albums = all_albums()
+    album_images = dict()
+    for album in albums:
+        d = extract_date(album)
+        if d: epoch = int(datetime.combine(d, time()).timestamp())
+        else: epoch = None
+        album_images[album] = {'images': [], 'date': "{0}".format(d), 'epoch': epoch}
+    for image in all_images():
+        album_images[os.path.split(image)[0]]['images'].append(image)
+    return album_images
+
 def sorted_albums( l ): 
     """ Sort the given iterable in the way that humans expect.
         see http://stackoverflow.com/a/2669120/183995
@@ -236,6 +251,16 @@ def show_images(album=None):
     if album:
         images = [image for image in images if os.path.split(image)[0] == album]
     return dict(images=images, album=album, thumb_height=DEFAULT_THUMB_HEIGHT)
+
+@pb.route('/ajaxalbums')
+@view('ajaxalbums.jinja2')
+def ajax_albums():
+    return dict()
+
+@pb.route('/ajax')
+@view('ajax.jinja2')
+def ajax_gallery():
+    return dict()
 
 @pb.route('/show/<filename:path>')
 @view('show.jinja2')
@@ -280,6 +305,15 @@ def full_size_image(filename):
 def get_image_size(filepath):
     with Image.open(filepath) as img:
         return img.size
+
+def maxSize(image, maxSize, method = Image.ANTIALIAS):
+    imAspect = float(image.size[0])/float(image.size[1])
+    outAspect = float(maxSize[0])/float(maxSize[1])
+
+    if imAspect >= outAspect:
+        return image.resize((maxSize[0], int((float(maxSize[0])/imAspect) + 0.5)), method)
+    else:
+        return image.resize((int((float(maxSize[1])*imAspect) + 0.5), maxSize[1]), method)
 
 def get_exif_data(filename):
     with Image.open(filename) as im:
@@ -359,6 +393,7 @@ def scaled_image(height, filename):
                         if value == 8: im = im.rotate(90, expand=True)
                         break
             im.thumbnail(size, Image.ANTIALIAS)
+            #img = maxSize(im, size)
             mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
             im.save(os.path.join(THUMBS_DIR, outfile), "JPEG", quality=JPEG_QUALITY)
     except (IOError, NameError):

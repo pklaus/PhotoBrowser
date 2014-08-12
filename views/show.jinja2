@@ -6,6 +6,7 @@
 
 {% block head %}
   {{ super() }}
+  <script type="text/javascript" src="/static/js/fullscreen.js"></script>
   <script>
   // -- Use some jQuery JS (can also be done without jQuery as introduced in daecd1f )
   // -  see http://jqueryfordesigners.com/adding-keyboard-navigation/
@@ -20,6 +21,9 @@
     } else if (event.keyCode == 38) {
       // go up
       document.getElementById('up').click();
+    } else if ( (event.keyCode == 46) || (event.keyCode == 68) ) {
+      // delete or d   (backspace / 8 is used to go back on most browsers)
+      console.log('delete this file');
     }
   });
   </script>
@@ -33,6 +37,7 @@
       {% if album %} <a id="up" href="/album/{{ album }}#{{ filename }}">↑ This Album</a> | {% endif %}
       <a href="/albums">All Albums</a> |
       <a href="/api/image/full/{{ filename }}">Full Size Image</a>
+       | <a onClick="toggleFullScreen()">Full Screen Mode</a>
       {% if next %} | <a id="next" href="/show/{{ next }}{% if height %}?height={{height}}{% endif %}">next →</a>{% endif %}
     </div>
     <img src="/api/image/scaled/{{ height or 600 }}/{{ filename }}" />

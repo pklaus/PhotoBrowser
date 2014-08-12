@@ -1,0 +1,37 @@
+{% extends "base.jinja2" %}
+
+{% block title %}AJAX Gallery{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/ajaxgal-style.css" />
+  <script type="text/javascript" src="/static/js/ajaxalbums.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id='ajaxalbums-wrapper'>
+    <h1>AJAX Albums Date Slider</h1>
+    <p>
+    <span>Range:</span>
+    <span id="amount"></span>
+    </p>
+    <div id="slider"></div>
+
+    <div id="ajaxalbums"></div>
+    </div>
+
+    <script>
+        ajaxalbums();
+    </script>
+
+    <style>
+      #ajaxalbums-wrapper {
+          width: 80%;
+          margin-left: auto;
+          margin-right: auto;
+      }
+    </style>
+
+{% endblock %}
+

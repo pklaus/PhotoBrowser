@@ -1,0 +1,5 @@
+#ajaxgal div.image {
+    padding: 10px;
+    display: inline-block;
+}
+#ajaxgal div.image span.name { display: block; }

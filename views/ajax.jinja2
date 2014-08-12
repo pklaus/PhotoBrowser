@@ -1,0 +1,22 @@
+{% extends "base.jinja2" %}
+
+{% block title %}AJAX Gallery{% endblock %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/ajaxgal-style.css" />
+  <script type="text/javascript" src="/static/js/ajax-gallery.js"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="ajaxgal"></div>
+
+    <script>
+        ajaxgal();
+    </script>
+
+{% endblock %}
+
+
+
