@@ -487,15 +487,15 @@ if __name__ == '__main__':
     else:
         IMG_FILTER = IMAGE_FOLDER + '/' + IMG_FILTER
     if args.jpeg_quality not in range(0,101):
-        args.error('JPEG quality must be in the range of 0-100.')
+        parser.error('JPEG quality must be in the range of 0-100.')
     JPEG_QUALITY = args.jpeg_quality
     if args.debug and args.ipv6:
-        args.error('You cannot use IPv6 in debug mode, sorry.')
+        parser.error('You cannot use IPv6 in debug mode, sorry.')
     if args.logfile:
         try:
             from requestlogger import WSGILogger, ApacheFormatter
         except ImportError:
-            args.error('You asked to log requests. For this to work, install wsgi-request-logger via pip.')
+            parser.error('You asked to log requests. For this to work, install wsgi-request-logger via pip.')
         from logging.handlers import TimedRotatingFileHandler
         handlers = [ TimedRotatingFileHandler(args.logfile, 'd', 7) , ]
         pb = WSGILogger(pb, handlers, ApacheFormatter())
