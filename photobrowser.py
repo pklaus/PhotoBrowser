@@ -8,7 +8,7 @@ import os, sys
 import errno
 import re
 import argparse
-from random import sample, choice
+from random import sample, choice, randint
 import string
 from functools import partial
 from datetime import date
@@ -456,7 +456,29 @@ session_opts = {
     #'session.auto': True
 }
 
-pb = SessionMiddleware(pb, session_opts)
+def define_caching(server):
+    import memcache
+    MC = memcache.Client([server], debug=0)
+    MC_PREF = "PBMC_"
+    MC_NS_KEY = MC.get(MC_PREF + "namespace_key");
+    if not MC_NS_KEY :
+        MC_NS_KEY = randint(1, 2147483648)
+        MC.set(MC_PREF + "namespace_key", MC_NS_KEY)
+    def caching(callback):
+        def wrapper(*args, **kwargs):
+            path = request.environ.get('PATH_INFO', '')
+            if path.startswith('/show') or \
+              path.startswith('/api/image'):
+                key = MC_PREF + str(MC_NS_KEY) + path
+                obj = MC.get(key)
+                if not obj:
+                    obj = callback(*args, **kwargs)
+                    MC.set(key, obj)
+                return obj
+            else:
+                return callback(*args, **kwargs)
+        return wrapper
+    return caching
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
@@ -470,6 +492,7 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--allow-crawling', action='store_true',
     help='Allow Search engines to index the site (only useful if accessible without password).')
     parser.add_argument('-l', '--logfile', help='A logfile to log requests to.')
+    parser.add_argument('-m', '--memcached', metavar='127.0.0.1:11211', help="Use a Memcached server for server side caching.")
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
@@ -491,6 +514,11 @@ if __name__ == '__main__':
     JPEG_QUALITY = args.jpeg_quality
     if args.debug and args.ipv6:
         parser.error('You cannot use IPv6 in debug mode, sorry.')
+    if args.memcached:
+        try:
+            pb.install(define_caching(args.memcached))
+        except ImportError:
+            parser.error('You asked to use a memcached server. For this to work, install python3-memcached via pip.')
     if args.logfile:
         try:
             from requestlogger import WSGILogger, ApacheFormatter
@@ -505,6 +533,9 @@ if __name__ == '__main__':
         ADMIN_PASSWORD = create_id(size=12)
     print("Admin Password Set To: {0}".format(ADMIN_PASSWORD))
     ALLOW_CRAWLING = 'Allow' if args.allow_crawling else 'Disallow'
+    # As a last step, we replace the photobrowser pb with the session middleware.
+    # If you do this earlier, Bottle plugins could not be added via .install() anymore.
+    pb = SessionMiddleware(pb, session_opts)
     if args.debug:
         run(app=pb, host='0.0.0.0', port=args.port, debug=True, reloader=True)
     else:
