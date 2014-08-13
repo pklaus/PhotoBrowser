@@ -54,6 +54,7 @@ IMAGE_REGEX = None
 ADMIN_PASSWORD = None
 ALLOW_CRAWLING = 'Disallow'
 COPYRIGHT = '© {}'.format(date.today().year)
+MC_NS_KEY = None
 
 filter_dict = {}
 view = partial(jinja2_view,
@@ -139,10 +140,11 @@ def index_page():
 
 @api.get('/clear-cache')
 def clear_cache():
-    global CACHED_IMGs
+    global CACHED_IMGs, CACHED_ALBUMBs, CACHED_ALBUM_IMGS, MC_NS_KEY
     CACHED_IMGs[:] = []
     CACHED_ALBUMBs[:] = []
     CACHED_ALBUM_IMGS = dict()
+    if MC_NS_KEY : MC_NS_KEY = MC.incr(MC_PREF + "namespace_key")
     return dict(result='success')
 
 @api.get('/list/images')
@@ -458,6 +460,7 @@ session_opts = {
 }
 
 def define_caching(server):
+    global MC_NS_KEY
     import memcache
     MC = memcache.Client([server], debug=0)
     MC_PREF = "PBMC_"
