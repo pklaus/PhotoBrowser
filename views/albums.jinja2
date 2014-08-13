@@ -5,6 +5,7 @@
 {% block body_class %}albums{% endblock %}
 
 {% block content %}
+  <h1>Albums served by PhotoBrowser</h1>
   {% for album in albums %}
     <a name='{{ album }}'></a>
     <a href='/album/{{ album }}'>
@@ -20,6 +21,11 @@
         <img src='/api/image/scaled/{{ thumb_height }}/{{ album_image }}'>
       </a>
     {% endfor %}
+    <a href='/album/{{ album }}'>
+      <div class='more-link' style='width: {{ thumb_height - 20 }}px; height: {{ thumb_height - 20 }}px;'>
+        <span style="top: {{ (thumb_height - 20) / 2 - 12 }}px;">Show all images<br />of this album.</span>
+      </div>
+    </a>
   {% endfor %}
 {% endblock %}
 

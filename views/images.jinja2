@@ -6,8 +6,12 @@
 
 {% block content %}
   {% if album %}
-    <a href='/images'>Show All Images</a> | <a href='/albums'>Show All Albums</a>
-    <h3>Album: {{ album }}</h3>
+    <a href='/albums'>↑ Show All Albums</a>
+    {% if album|extract_date %}
+      <h3><strong>{{ album|extract_date|format_date }}</strong> - {{ album|remove_date }}</h3>
+    {% else %}
+      <h3>{{ album }}</h3>
+    {% endif %}
   {% endif %}
   {% for image in images %}
     <a name='{{ image }}'></a>

@@ -30,8 +30,8 @@
     <center>
     <div id='image-navigation'>
       {% if previous %} <a id='previous' href='/show/{{ previous }}{% if height %}?height={{height}}{% endif %}'>← previous</a> | {% endif %}
-      <a href='/images#{{ filename }}'>All Images</a> | 
-      {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>Album View</a> | {% endif %}
+      {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>↑ This Album</a> | {% endif %}
+      <a href='/albums'>All Albums</a> |
       <a href='/api/image/full/{{ filename }}'>Full Size Image</a>
       {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
     </div>

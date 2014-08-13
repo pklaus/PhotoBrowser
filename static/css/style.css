@@ -18,6 +18,15 @@ body.home, body.albums, body.images {
   padding: 3px 20px 16px 20px;
 }
 
+h3 {
+  font-size: 160%;
+}
+
+h1, h2, h3, h4 {
+  margin-bottom: .3ex;
+  margin-top: 1.5ex;
+}
+
 #exif {
   position: absolute;
   right: 0;
@@ -39,6 +48,20 @@ body.home, body.albums, body.images {
   right: 0;
   bottom: 0;
   padding: 4px;
+}
+
+.more-link {
+  border: 10px ridge gray;
+  background: #333;
+  display: inline-block;
+  vertical-align: bottom;
+  margin-bottom: 3px;
+  text-align: center;
+}
+
+.more-link span {
+  position: relative;
+  font-size: large;
 }
 
 #login {

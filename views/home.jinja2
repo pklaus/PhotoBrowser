@@ -12,12 +12,12 @@
 {% endblock %}
 
 {% block content %}
+  <h1>Albums served by PhotoBrowser</h1>
   <h3>Navigation</h3>
   <ul>
-    <li><a href='/images'>Show All Images</a></li>
     <li><a href='/albums'>Show All Albums</a></li>
   </ul>
-  <h3>Some Random Images</h3>
+  <h3>Some random chosen images:</h3>
   {% for image in images %}
     <a name='{{ image }}'></a>
     <a href='/show/{{ image }}'>
