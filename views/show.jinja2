@@ -54,8 +54,19 @@
     {% if next %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ next }}' />{% endif %}
     {% if previous %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ previous }}' />{% endif %}
 
-{% endblock %}
+    <script>
+    $("#content").touchwipe({
+       wipeLeft: function() { document.getElementById('next').click(); },
+       wipeRight: function() { document.getElementById('previous').click(); },
+       wipeUp: function() { },
+       wipeDown: function() { document.getElementById('up').click(); },
+       min_move_x: 35,
+       min_move_y: 50,
+       preventDefaultEvents: true
+    });
+     </script>
 
+{% endblock %}
 
 {% block footer %}
     {{ copyright }}<br />
