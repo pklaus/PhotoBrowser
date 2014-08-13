@@ -36,6 +36,10 @@
       {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
     </div>
     <img src='/api/image/scaled/{{ height or 600 }}/{{ filename }}' />
+    <div id='albuminfo'>
+        <strong>Album:</strong> {{ album|remove_date }}<br />
+        <!-- Image # <strong>3</strong>/20 -->
+    </div>
     <div id='exif'>
       {% if exif %}
         <strong>Camera:</strong> {{ exif['Model'] }}<br />

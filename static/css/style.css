@@ -27,15 +27,26 @@ h1, h2, h3, h4 {
   margin-top: 1.5ex;
 }
 
-#exif {
+#exif, #albuminfo {
   position: absolute;
-  right: 0;
   top: 0;
   padding: 5px;
-  border-radius: 0 0 0 22px; 
-  -moz-border-radius: 0 0 0 27px; 
-  -webkit-border-radius: 0 0 0 27px; 
-  background-color: rgba(50,50,50,0.9);
+  background-color: rgba(50,50,50,0.7);
+}
+
+#albuminfo {
+  padding: 9px;
+  left: 0;
+  border-radius: 0 0 22px 0;
+  -moz-border-radius: 0 0 22px 0;
+  -webkit-border-radius: 0 0 22px 0;
+}
+
+#exif {
+  right: 0;
+  border-radius: 0 0 0 22px;
+  -moz-border-radius: 0 0 0 22px;
+  -webkit-border-radius: 0 0 0 22px;
 }
 
 #image-navigation {
