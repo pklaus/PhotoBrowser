@@ -27,7 +27,7 @@ Python modules needed:
 3. Use pip to install CherryPy: `set PATH=C:\Python33\Scripts;%PATH%` and `pip install cherrypy`
 4. Install [Pillow](http://www.lfd.uci.edu/~gohlke/pythonlibs/#pil)
 5. Install [Jinja2](http://www.lfd.uci.edu/~gohlke/pythonlibs/#jinja2)
-6. Install beaker...
+6. Use pip to install beaker: `set PATH=C:\Python33\Scripts;%PATH%` and `pip install beaker`
 7. Run via `set PATH=C:\Python33;%PATH%` and `python C:\Repos\PhotoBrowser\photobrowser.py -p 2222 -s .\`
 
 #### Some ideas:
