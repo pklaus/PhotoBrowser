@@ -59,6 +59,8 @@ Python modules needed:
   Constructor: `$('#element').dateRangeSlider({});`
   Options: `{arrows: false, }`
   Theme: `/css/classic.css`
+* Serve images in 2x resolution for Apple Retina devices
+  <http://code.tutsplus.com/tutorials/the-right-way-to-retinafy-your-websites--net-31793>
 
 #### References
 
