@@ -469,6 +469,7 @@ if __name__ == '__main__':
     help='Assume images to be stored in sub directories.')
     parser.add_argument('-c', '--allow-crawling', action='store_true',
     help='Allow Search engines to index the site (only useful if accessible without password).')
+    parser.add_argument('-l', '--logfile', help='A logfile to log requests to.')
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
     help='Start in debug mode (with verbose HTTP error pages.')
@@ -490,6 +491,14 @@ if __name__ == '__main__':
     JPEG_QUALITY = args.jpeg_quality
     if args.debug and args.ipv6:
         args.error('You cannot use IPv6 in debug mode, sorry.')
+    if args.logfile:
+        try:
+            from requestlogger import WSGILogger, ApacheFormatter
+        except ImportError:
+            args.error('You asked to log requests. For this to work, install wsgi-request-logger via pip.')
+        from logging.handlers import TimedRotatingFileHandler
+        handlers = [ TimedRotatingFileHandler(args.logfile, 'd', 7) , ]
+        pb = WSGILogger(pb, handlers, ApacheFormatter())
     if args.admin_password:
         ADMIN_PASSWORD = args.admin_password
     else:
