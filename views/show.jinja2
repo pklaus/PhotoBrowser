@@ -43,13 +43,13 @@
     <div id='exif'>
       {% if exif %}
         <strong>Camera:</strong> {{ exif['Model'] }}<br />
-        <strong>Parameters:</strong> {{ exif['FocalLength']|format_focallength }}, {{ exif['FNumber']|format_fnumber }}, 
+        <strong>Parameters:</strong> {{ exif['FocalLength']|format_focallength }}, {{ exif['FNumber']|format_fnumber }},
                  exp. {{ exif['ExposureTime']|format_exposuretime }}, ISO {{ exif['ISOSpeedRatings'] }}<br />
         <strong>File:</strong> JPG, {{ exif['ExifImageWidth'] }}x{{ exif['ExifImageHeight'] }} pix, {{ '%.2f'|format(filesize) }} MB
       {% else %}
         <strong>No or incomplete EXIF information<br />stored in this image.</strong>
       {% endif %}
-    </div>    
+    </div>
     </center>
     {% if next %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ next }}' />{% endif %}
     {% if previous %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ previous }}' />{% endif %}
