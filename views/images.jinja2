@@ -2,6 +2,8 @@
 
 {% block title %}{% if album %}Album {{album}}{% else %}All Images{% endif %}{% endblock %}
 
+{% block body_class %}images{% endblock %}
+
 {% block content %}
   {% if album %}
     <a href='/images'>Show All Images</a> | <a href='/albums'>Show All Albums</a>

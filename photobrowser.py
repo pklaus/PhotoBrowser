@@ -53,6 +53,7 @@ IMAGE_FOLDER = './'
 IMAGE_REGEX = None
 ADMIN_PASSWORD = None
 ALLOW_CRAWLING = 'Disallow'
+COPYRIGHT = '© {}'.format(date.today().year)
 
 filter_dict = {}
 view = partial(jinja2_view,
@@ -263,7 +264,7 @@ def show_large_image(filename):
             if not item in exif: exif = None
     except:
         exif = None
-    return dict(album=album, filename=filename, next=next, previous=previous, height=height, exif=exif, filesize=os.path.getsize(os.path.join(IMAGE_FOLDER, filename))/(1024.*1024.))
+    return dict(album=album, filename=filename, next=next, previous=previous, height=height, exif=exif, copyright=COPYRIGHT, filesize=os.path.getsize(os.path.join(IMAGE_FOLDER, filename))/(1024.*1024.))
 
 @api.route('/image/full/<filename:path>')
 def full_size_image(filename):
@@ -480,7 +481,8 @@ def define_caching(server):
         return wrapper
     return caching
 
-if __name__ == '__main__':
+def main():
+    global COPYRIGHT, THUMBS_DIR, IMAGE_FOLDER, IMAGE_REGEX, JPEG_QUALITY, IMG_FILTER, pb
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
     parser.add_argument('-6', '--ipv6', action='store_true',
@@ -489,9 +491,10 @@ if __name__ == '__main__':
     parser.add_argument('-a', '--admin-password', help='The admin password')
     parser.add_argument('-s', '--subdirs', action='store_true',
     help='Assume images to be stored in sub directories.')
-    parser.add_argument('-c', '--allow-crawling', action='store_true',
+    parser.add_argument('--allow-crawling', action='store_true',
     help='Allow Search engines to index the site (only useful if accessible without password).')
     parser.add_argument('-l', '--logfile', help='A logfile to log requests to.')
+    parser.add_argument('--copyright', help='Copyright note')
     parser.add_argument('-m', '--memcached', metavar='127.0.0.1:11211', help="Use a Memcached server for server side caching.")
     parser.add_argument('-q', '--jpeg-quality', type=int, default=JPEG_QUALITY, help='Set the quality of the thumbnail JPEGs (1-100).')
     parser.add_argument('-d', '--debug', action='store_true',
@@ -514,6 +517,8 @@ if __name__ == '__main__':
     JPEG_QUALITY = args.jpeg_quality
     if args.debug and args.ipv6:
         parser.error('You cannot use IPv6 in debug mode, sorry.')
+    if args.copyright:
+        COPYRIGHT = args.copyright
     if args.memcached:
         try:
             pb.install(define_caching(args.memcached))
@@ -543,4 +548,7 @@ if __name__ == '__main__':
             run(app=pb, host='::', server='cherrypy', port=args.port)
         else:
             run(app=pb, host='0.0.0.0', server='cherrypy', port=args.port)
+
+if __name__ == '__main__':
+    main()
 

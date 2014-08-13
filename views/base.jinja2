@@ -7,13 +7,11 @@
     <title>{% block title %}{% endblock %} - PhotoBrowser</title>
     {% endblock %}
 </head>
-<body>
-    <div id="content">{% block content %}{% endblock %}</div>
-    <div id="footer">
-        {% block footer %}
-        Powered by <a href="https://github.com/pklaus/PhotoBrowser">PhotoBrowser</a>.
-        {% endblock %}
+<body class='{% block body_class %}default{% endblock %}'>
+    <div id="content">
+      {% block content %}{% endblock %}
     </div>
+    <div id="footer">{% block footer %}{% endblock %}</div>
 </body>
 </html>
 

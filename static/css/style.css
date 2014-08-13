@@ -1,7 +1,3 @@
-body {
-  background-color: #222;
-}
-
 /* base styles */
 * {margin:0; padding:0;}
 img {border:0;}
@@ -14,6 +10,13 @@ body {font:13px Arial, Helvetica, sans-serif; color:#FFF;}
 a {text-decoration:none; color:#888; outline:none; cursor:pointer;}
 a:hover {text-decoration:underline;}
 
+body {
+  background-color: #222;
+}
+
+body.home, body.albums, body.images {
+  padding: 3px 20px 16px 20px;
+}
 
 #exif {
   position: absolute;
@@ -31,10 +34,11 @@ a:hover {text-decoration:underline;}
 }
 
 #footer {
+  text-align: right;
   position: absolute;
   right: 0;
   bottom: 0;
-  padding: 5px;
+  padding: 4px;
 }
 
 #login {
