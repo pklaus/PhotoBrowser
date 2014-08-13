@@ -268,7 +268,11 @@ def show_large_image(filename):
 @api.route('/image/full/<filename:path>')
 def full_size_image(filename):
     filename = clean_url_path(filename)
-    return static_file(filename, root=IMAGE_FOLDER)
+    dl = bool(request.query.get('dl', False))
+    if dl:
+        return static_file(filename, root=IMAGE_FOLDER, download=os.path.split(filename)[1])
+    else:
+        return static_file(filename, root=IMAGE_FOLDER)
 
 def get_image_size(filepath):
     with Image.open(filepath) as img:
