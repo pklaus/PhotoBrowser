@@ -69,8 +69,8 @@ def filter(func):
 def remove_date(text):
     try:
         return re.match('^\d+-\d+-\d+[_ ](.*)', text).groups()[0].replace('-',' ').replace('_',', ')
-    except AttributeError:
-        return None
+    except:
+        return text
 
 @filter
 def extract_date(text):
