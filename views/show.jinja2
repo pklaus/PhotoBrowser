@@ -28,19 +28,19 @@
 {% block content %}
 
     <center>
-    <div id='image-navigation'>
-      {% if previous %} <a id='previous' href='/show/{{ previous }}{% if height %}?height={{height}}{% endif %}'>← previous</a> | {% endif %}
-      {% if album %} <a id='up' href='/album/{{ album }}#{{ filename }}'>↑ This Album</a> | {% endif %}
-      <a href='/albums'>All Albums</a> |
-      <a href='/api/image/full/{{ filename }}'>Full Size Image</a>
-      {% if next %} | <a id='next' href='/show/{{ next }}{% if height %}?height={{height}}{% endif %}'>next →</a>{% endif %}
+    <div id="image-navigation">
+      {% if previous %} <a id="previous" href="/show/{{ previous }}{% if height %}?height={{height}}{% endif %}">← previous</a> | {% endif %}
+      {% if album %} <a id="up" href="/album/{{ album }}#{{ filename }}">↑ This Album</a> | {% endif %}
+      <a href="/albums">All Albums</a> |
+      <a href="/api/image/full/{{ filename }}">Full Size Image</a>
+      {% if next %} | <a id="next" href="/show/{{ next }}{% if height %}?height={{height}}{% endif %}">next →</a>{% endif %}
     </div>
-    <img src='/api/image/scaled/{{ height or 600 }}/{{ filename }}' />
-    <div id='albuminfo'>
+    <img src="/api/image/scaled/{{ height or 600 }}/{{ filename }}" />
+    <div id="albuminfo">
         <strong>Album:</strong> {{ album|remove_date }}<br />
         <!-- Image # <strong>3</strong>/20 -->
     </div>
-    <div id='exif'>
+    <div id="exif">
       {% if exif %}
         <strong>Camera:</strong> {{ exif['Model'] }}<br />
         <strong>Parameters:</strong> {{ exif['FocalLength']|format_focallength }}, {{ exif['FNumber']|format_fnumber }},
@@ -51,8 +51,8 @@
       {% endif %}
     </div>
     </center>
-    {% if next %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ next }}' />{% endif %}
-    {% if previous %}<img style='display:none' src='/api/image/scaled/{{ height or 600 }}/{{ previous }}' />{% endif %}
+    {% if next %}<img style="display:none" src="/api/image/scaled/{{ height or 600 }}/{{ next }}" />{% endif %}
+    {% if previous %}<img style="display:none" src="/api/image/scaled/{{ height or 600 }}/{{ previous }}" />{% endif %}
 
     <script>
     $("#content").touchwipe({

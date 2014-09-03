@@ -7,8 +7,8 @@
 {% block content %}
   <h1>Albums served by PhotoBrowser</h1>
   {% for album in albums %}
-    <a name='{{ album }}'></a>
-    <a href='/album/{{ album }}'>
+    <a name="{{ album }}"></a>
+    <a href="/album/{{ album }}">
     {% if album|extract_date %}
       <h3><strong>{{ album|extract_date|format_date }}</strong> - {{ album|remove_date }}</h3>
     {% else %}
@@ -16,13 +16,13 @@
     {% endif %}
     </a>
     {% for album_image in album_images[album] %}
-      <a name='{{ album_image }}'></a>
-      <a href='/show/{{ album_image }}'>
-        <img src='/api/image/scaled/{{ thumb_height }}/{{ album_image }}'>
+      <a name="{{ album_image }}"></a>
+      <a href="/show/{{ album_image }}">
+        <img src="/api/image/scaled/{{ thumb_height }}/{{ album_image }}">
       </a>
     {% endfor %}
-    <a href='/album/{{ album }}'>
-      <div class='more-link' style='width: {{ thumb_height - 20 }}px; height: {{ thumb_height - 20 }}px;'>
+    <a href="/album/{{ album }}">
+      <div class="more-link" style="width: {{ thumb_height - 20 }}px; height: {{ thumb_height - 20 }}px;">
         <span style="top: {{ (thumb_height - 20) / 2 - 12 }}px;">Show all images<br />of this album.</span>
       </div>
     </a>

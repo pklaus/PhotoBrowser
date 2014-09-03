@@ -15,13 +15,13 @@
   <h1>Albums served by PhotoBrowser</h1>
   <h3>Navigation</h3>
   <ul>
-    <li><a href='/albums'>Show All Albums</a></li>
+    <li><a href="/albums">Show All Albums</a></li>
   </ul>
   <h3>Some random chosen images:</h3>
   {% for image in images %}
-    <a name='{{ image }}'></a>
-    <a href='/show/{{ image }}'>
-      <img src='/api/image/scaled/{{ thumb_height }}/{{ image }}'>
+    <a name="{{ image }}"></a>
+    <a href="/show/{{ image }}">
+      <img src="/api/image/scaled/{{ thumb_height }}/{{ image }}">
     </a>
   {% endfor %}
 {% endblock %}
