@@ -107,6 +107,9 @@ def format_exposuretime(exif_exposure):
     else:
         return "{0:.1f} sec".format(float(exposure))
 
+def remote_addr(request):
+    return request.headers.get('X-Real-IP', request.remote_addr)
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -401,7 +404,7 @@ def auth(callback):
         if s.get('admin', False):
             return callback(*args, **kwargs)
         else:
-            if ip_address(request.remote_addr).is_private:
+            if ip_address(remote_addr(request)).is_private:
                 # visitors from local nets are automatically admins
                 set_admin()
                 return callback(*args, **kwargs)
