@@ -38,5 +38,6 @@ print("Preloading images for " + site)
 site = urllib.parse.urljoin(site, '/api/image/scaled/600/')
 for image in images:
     print("Fetching {}.".format(image))
+    image = urllib.parse.quote(image)
     urllib.request.urlopen(urllib.parse.urljoin(site, image)).read()
 
