@@ -1,12 +1,17 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+"""
+Preloader for PhotoBrowser
+uses Python3
+"""
 
 import sys
 
 try:
     site = sys.argv[1]
 except:
-    sys.stderr.write("usage: " + sys.argv[0] + " SITE_URL\n")
+    sys.stderr.write("usage: " + sys.argv[0] + " SITE_URL [password]\n")
     sys.exit(2)
 try:
     password = sys.argv[2]
