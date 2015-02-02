@@ -488,7 +488,7 @@ def define_caching(server):
     return caching
 
 def main():
-    global COPYRIGHT, THUMBS_DIR, IMAGE_FOLDER, IMAGE_REGEX, JPEG_QUALITY, IMG_FILTER, ADMIN_PASSWORD, pb
+    global COPYRIGHT, THUMBS_DIR, IMAGE_FOLDER, IMAGE_REGEX, JPEG_QUALITY, IMG_FILTER, ADMIN_PASSWORD, ALLOW_CRAWLING, pb
     parser = argparse.ArgumentParser(description='Run this in a folder of images to serve them on the web')
     parser.add_argument('-p', '--port', default='8080', help='The port to run the web server on.')
     parser.add_argument('-6', '--ipv6', action='store_true',
