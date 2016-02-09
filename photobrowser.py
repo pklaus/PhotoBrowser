@@ -14,6 +14,7 @@ from functools import partial
 from datetime import date
 from fractions import Fraction
 from ipaddress import ip_address
+import urllib.parse
 ### ------ External Dependencies
 def require_external(name, hint):
     sys.stderr.write('This script requires {}. {}\n'.format(name, hint))
@@ -122,11 +123,7 @@ def create_id(size=8):
     return ''.join([choice(string.ascii_letters + string.digits) for i in range(size)])
 
 def clean_url_path(path):
-    try:
-        path = path.encode('latin1').decode('utf8')
-    except UnicodeEncodeError:
-        pass
-    return path
+    return urllib.parse.unquote(path)
 
 pb = Bottle()
 api = Bottle()
