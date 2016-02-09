@@ -12,6 +12,7 @@ import http.cookiejar
 import json
 import sys
 import argparse
+import time
 
 def main():
 
@@ -20,6 +21,8 @@ def main():
                        help='URL to your PhotoBrowser site.')
     parser.add_argument('--password', '-p',
                        help='Provide the password to your site if needed.')
+    parser.add_argument('--wait', '-w', type=float, default=1E-4,
+                       help='Microseconds to wait after every fetched image. Default: 1E-4 s.')
     args = parser.parse_args()
 
     print("Logging in")
@@ -44,6 +47,7 @@ def main():
         print("Fetching {}.".format(image))
         image = urllib.parse.quote(image)
         urllib.request.urlopen(urllib.parse.urljoin(base_url, image)).read()
+        if args.wait: time.sleep(args.wait)
 
 if __name__ == "__main__":
     main()
