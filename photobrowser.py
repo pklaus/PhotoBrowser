@@ -29,7 +29,7 @@ try:
     from PIL import Image
     from PIL import ExifTags
 except ImportError:
-    require_external('PIL', 'get it with `pip install PIL`')
+    require_external('PIL', 'get it with `pip install pillow`')
 try:
     from beaker.middleware import SessionMiddleware
 except ImportError:
@@ -354,9 +354,9 @@ def scaled_image(height, filename):
                 for tag, value in exif.items():
                     decoded = ExifTags.TAGS.get(tag, tag)
                     if decoded == 'Orientation':
-                        if value == 3: im = im.rotate(180)
-                        if value == 6: im = im.rotate(270)
-                        if value == 8: im = im.rotate(90)
+                        if value == 3: im = im.rotate(180, expand=True)
+                        if value == 6: im = im.rotate(270, expand=True)
+                        if value == 8: im = im.rotate(90, expand=True)
                         break
             im.thumbnail(size, Image.ANTIALIAS)
             mkdir_p(os.path.split(os.path.join(THUMBS_DIR, outfile))[0])
