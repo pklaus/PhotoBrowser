@@ -236,7 +236,7 @@ def albums():
     # Create partial list of album images:
     partial_album_images = album_images()
     for album in partial_album_images:
-        partial_album_images[album] = partial_album_images[album][:6]
+        partial_album_images[album]['images'] = partial_album_images[album]['images'][:6]
     return dict(albums=albums, album_images=partial_album_images, thumb_height=DEFAULT_THUMB_HEIGHT)
 
 @pb.get('/album/<album:path>')

@@ -15,7 +15,7 @@
       <h3>{{ album }}</h3>
     {% endif %}
     </a>
-    {% for album_image in album_images[album] %}
+    {% for album_image in album_images[album].images %}
       <a name="{{ album_image }}"></a>
       <a href="/show/{{ album_image }}">
         <img src="/api/image/scaled/{{ thumb_height }}/{{ album_image }}">
